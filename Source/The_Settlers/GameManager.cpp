@@ -117,3 +117,54 @@ void AGameManager::resOut2() {
 		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Purple, null);
 	}
 }
+void FPlayerInventory::removeHalf() {
+	int16 totalRes = total();
+	if (totalRes < 7) {
+		return;
+	}
+	for (int8 i = 0; i < totalRes/ 2; ++i) {
+		removeOneRand();
+	}
+}
+int16 FPlayerInventory::total() {
+	FString mesage = FString::Printf(TEXT("Total INV     : %d"), this->wheat + this->bricks + this->ore + this->wool + this->wood);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, mesage);
+	return this->wheat + this->bricks + this->ore + this->wool + this->wood;
+}
+void FPlayerInventory::removeOneRand() {
+	rereoll:
+	if (this->wheat == 0 && this->bricks == 0 && this->ore == 0 && this->wood == 0 && this->wool == 0) {
+		return;
+	}
+	int randomResource = rand() % 5;
+	if (randomResource == 0) {
+		if (this->bricks == 0) {
+			goto rereoll;
+		}
+		--this->bricks;
+	}
+	if (randomResource == 1) {
+		if (this->wheat == 0) {
+			goto rereoll;
+		}
+		--this->wheat;
+	}
+	if (randomResource == 2) {
+		if (this->ore == 0) {
+			goto rereoll;
+		}
+		--this->ore;
+	}
+	if (randomResource == 3) {
+		if (this->wood == 0) {
+			goto rereoll;
+		}
+		--this->wood;
+	}
+	if (randomResource == 4) {
+		if (this->wool == 0) {
+			goto rereoll;
+		}
+		--this->wool;
+	}
+}

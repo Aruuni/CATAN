@@ -10,7 +10,7 @@ class AHexTileSpawner;
 USTRUCT(BlueprintType)
 struct FPlayerInventory {
 	GENERATED_BODY()
-		EPlayer player;
+	EPlayer player;
 	int16 wheat;
 	int16 ore;
 	int16 wool;
@@ -26,6 +26,9 @@ struct FPlayerInventory {
 	bool canBuySett = true;
 	bool canBuyRoad = true;
 	// maxes are conditionals on settlement buying onclick
+	void removeHalf();
+	int16 total();
+	void removeOneRand();
 };
 
 UENUM(BlueprintType)

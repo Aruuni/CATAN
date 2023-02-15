@@ -20,6 +20,9 @@ void AHexTile::settSet() {
 	}
 }
 void AHexTile::thiefMove(EPlayer stealer) {
+	for (int8 i = 0; i < 4; ++i) {
+		game->playerInventories[i].removeHalf();
+	}
 	FVector currLoc = thief->GetActorLocation();
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexTile::StaticClass(), foundActors);
