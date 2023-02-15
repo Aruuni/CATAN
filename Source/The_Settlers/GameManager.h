@@ -63,9 +63,8 @@ public:
 	EPlayer CurrentPlayer = EPlayer::PLAYER1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	float TurnDuration = 2.f; // Turn duration in seconds
+	float TurnDuration = 2000000000000000000.f; // Turn duration in seconds
 	FTimerHandle TurnTimerHandle;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	TArray<FPlayerInventory> playerInventories;
 
@@ -90,5 +89,5 @@ public:
 
 
 	void resOut();
-
+	void resOut2();
 };

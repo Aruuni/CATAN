@@ -4,6 +4,7 @@
 #include "GameManager.h"
 #include "Engine/World.h"
 #include <Kismet/GameplayStatics.h>
+
 ASettlement::ASettlement() {}
 void ASettlement::SettlementBuyer(EPlayer player) {
     if (!locked) {
@@ -58,8 +59,7 @@ void ASettlement::Upgrade() {
 
 void ASettlement::AddResource(EResource type) {
     if (playerOwner != EPlayer::NONE) {
-        FPlayerInventory inv;
-        inv = game->playerInventories[(int32)this->playerOwner - 1];
+        FPlayerInventory inv = game->playerInventories[(int32)this->playerOwner - 1];
         // this bit here needs rethinking, you can get more then 19 resources if the settlementis 
         if (checkMaxResources(type) == 19) {
             return;
@@ -71,6 +71,56 @@ void ASettlement::AddResource(EResource type) {
         if (type == EResource::WOOD) { inv.wood = !upgraded ? ++inv.wood : inv.wood += 2; }
         game->playerInventories[(int32)this->playerOwner - 1] = inv;
     }
+}
+
+void ASettlement::stealResource(EPlayer stealer) {
+    FPlayerInventory stealInv = game->playerInventories[(int32)stealer - 1];
+    FPlayerInventory currInv = game->playerInventories[(int32)playerOwner-1];
+    rereoll:
+    if (currInv.wheat == 0 && currInv.bricks == 0 && currInv.ore == 0 && currInv.wood == 0 && currInv.wool == 0) {
+        return;
+    }
+    int randomResource = rand() % 5;
+    FString message = FString::Printf(TEXT("Random Number: %d"), randomResource);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, message);
+    if (randomResource == 0) {
+        if (currInv.bricks == 0) {
+            goto rereoll;
+        }
+        ++stealInv.bricks;
+        --currInv.bricks;
+    }
+    if (randomResource == 1) {
+        if (currInv.wheat == 0) {
+            goto rereoll;
+        }
+        ++stealInv.wheat;
+        --currInv.wheat;
+    }
+    if (randomResource == 2) {
+        if (currInv.ore == 0) {
+            goto rereoll;
+        }
+        ++stealInv.ore;
+        --currInv.ore;
+    }
+    if (randomResource == 3) {
+        if (currInv.wood == 0) {
+            goto rereoll;
+        }
+        ++stealInv.wood;
+        --currInv.wood;
+    }
+    if (randomResource == 4) {
+        if (currInv.wool == 0) {
+            goto rereoll;
+        }
+        ++stealInv.wool;
+        --currInv.wool;
+    }
+    game->playerInventories[(int32)(stealInv.player)-1] = stealInv;
+    game->playerInventories[(int32)(currInv.player)-1] = currInv;
+    game->resOut2();
 }
 
 void ASettlement::settlementLock(EPlayer player) {

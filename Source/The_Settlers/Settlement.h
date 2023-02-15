@@ -14,22 +14,17 @@ class THE_SETTLERS_API ASettlement : public AActor
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Buying")
 	bool locked = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Buying")
 	bool bought = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Buying")
 	bool upgraded = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Owner")
 	EPlayer playerOwner;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
-	FIntPoint index;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
-	FVector settlementLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
 	AGameManager* game;
@@ -53,7 +48,7 @@ public:
 
 	ASettlement();
 
-
+	void stealResource(EPlayer stealer);
 	void settlementLock(EPlayer player);
 	bool roadAdjacency(EPlayer player);
 

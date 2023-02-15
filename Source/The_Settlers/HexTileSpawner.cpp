@@ -10,32 +10,33 @@ AHexTileSpawner::AHexTileSpawner() {}
 
 // Called when the game starts or when spawned
 void AHexTileSpawner::BeginPlay() {
-	UWorld* world = GetWorld();
 	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(world, AGameManager::StaticClass(), foundActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGameManager::StaticClass(), foundActors);
 	for (AActor* foundActor : foundActors) {
 		game = Cast<AGameManager>(foundActor);
 	}
-	
+	AThief* originThief = thiefInnit();
 	gridArray.SetNumZeroed(19);
 	AHexTile* origin = GetWorld()->SpawnActor<AHexTile>(DESERT, FVector(FIntPoint(0, 0)), FRotator::ZeroRotator);
+	origin->thief = originThief;
 	gridArray[0] = origin;
 	int8 counter = 0;
-	thiefInnit();
+
 	for (int8 hex = 1; hex < 19; ++hex) {
 		int randno = rand() % 5;
 		TArray<TSubclassOf<AHexTile>> toSpawn = { CLAY, MOUNTAIN, FOREST, PASTURE, FIELD };
 		FRotator RotationValue(0.0f, rand() % 5 * 60, 0.0f);
 		AHexTile* newTile = GetWorld()->SpawnActor<AHexTile>(toSpawn[randno], catanGrid[hex], RotationValue);
 		newTile->settSet();
-		newTile->hexSpawner = this;
+		newTile->game = game;
+		newTile->thief = originThief;
 		newTile->tileType = (EHexTile)(randno + 1);
 		gridArray[hex] = newTile;
 		++counter;
 	}
 
 	TArray<AActor*> foundActors2;
-	UGameplayStatics::GetAllActorsOfClass(world, AHexTileSpawner::StaticClass(), foundActors2);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexTileSpawner::StaticClass(), foundActors2);
 	for (AActor* foundActor : foundActors2) {
 		AHexTileSpawner* localgridArray = Cast<AHexTileSpawner>(foundActor);
 		gridArray = localgridArray->gridArray;
@@ -71,17 +72,13 @@ bool AHexTileSpawner::DiceRolled(int32 dice) {
 	else {
 		FString null = FString::Printf(TEXT("Place Thief"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, null);
-		game->thiefRound = true;
+		return true;
 	}
 	return true;
 }
 
-void AHexTileSpawner::thiefInnit() {
-	GetWorld()->SpawnActor<AThief>(thiefMesh, FVector(0, 0, 0), FRotator::ZeroRotator);
+AThief* AHexTileSpawner::thiefInnit() {
+	return GetWorld()->SpawnActor<AThief>(thiefMesh, FVector(0, 0, 0), FRotator::ZeroRotator);
 }
 
-void AHexTileSpawner::resetThief() {
-	/*or (int8 i = 0; i<gridArray.Num(); ++i) {
-		gridArray[i]->hasThief = false;
-	}*/
-}
+

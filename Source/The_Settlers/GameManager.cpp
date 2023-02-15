@@ -20,14 +20,15 @@ void AGameManager::BeginPlay() {
 		FPlayerInventory player;
 		player.player = (EPlayer)(p + 1);
 		// for debugging
-		player.bricks = 0;
-		player.wheat = 0;
-		player.ore = 0;
-		player.wood = 0;
-		player.wool = 0;
+		player.bricks = 5;
+		player.wheat = 5;
+		player.ore = 5;
+		player.wood = 5;
+		player.wool = 5;
 		player.settlements = 0;
 		player.cities = 0;
 		player.roads = 0;
+		player.victoryPoints = 0;
 		playerInventories[p] = player;
 	}
 	StartTurn();
@@ -48,7 +49,7 @@ void AGameManager::StartTurn() {
 
 	hexManager->DiceRolled(dice1 + dice2);
 
-	resOut();
+	//resOut();
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 
 }
@@ -93,5 +94,26 @@ void AGameManager::resOut() {
 		GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, player);
 		FString null = FString::Printf(TEXT("                     "));
 		GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, null);
+	}
+}
+void AGameManager::resOut2() {
+	int debugdurr = 3.f;
+	for (int8 i = 0; i < 4; ++i) {
+		FString null2 = FString::Printf(TEXT("                     "));
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Purple, null2);
+		FString bricks = FString::Printf(TEXT("Bricks     : %d"), playerInventories[i].bricks);
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Orange, bricks);
+		FString wool = FString::Printf(TEXT("Wool         : %d"), playerInventories[i].wool);
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::White, wool);
+		FString wood = FString::Printf(TEXT("Wood         : %d"), playerInventories[i].wood);
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Red, wood);
+		FString wheat = FString::Printf(TEXT("Wheat       : %d"), playerInventories[i].wheat);
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Yellow, wheat);
+		FString ore = FString::Printf(TEXT("Ore           : %d"), playerInventories[i].ore);
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Silver, ore);
+		FString player = FString::Printf(TEXT("Player         : %d"), i + 1);
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Purple, player);
+		FString null = FString::Printf(TEXT("                     "));
+		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Purple, null);
 	}
 }

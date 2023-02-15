@@ -1,6 +1,5 @@
 #include "HexTile.h"
 #include "Thief.h"
-#include "HexTileSpawner.h"
 #include <Components/SceneCaptureComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include <Kismet/GameplayStatics.h>
@@ -20,16 +19,38 @@ void AHexTile::settSet() {
 		}
 	}
 }
-void AHexTile::thiefMove() {
-	hexSpawner->resetThief();
+void AHexTile::thiefMove(EPlayer stealer) {
+	FVector currLoc = thief->GetActorLocation();
 	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AThief::StaticClass(), foundActors);
-	for (AActor* Actor : foundActors) {
-		AThief* pastthief = Cast<AThief>(Actor);
-		pastthief->Destroy();
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexTile::StaticClass(), foundActors);
+	for (AActor* foundActor : foundActors) {
+		AHexTile* hex = Cast<AHexTile>(foundActor);
+		hex->hasThief = false;
 	}
+	TArray<AActor*> foundMONKEY;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AThief::StaticClass(), foundMONKEY);
+	for (AActor* Actor : foundMONKEY) {
+		AThief* pastthief = Cast<AThief>(Actor);
+		if (pastthief) {
+			pastthief->Destroy();
+		}
+	}
+	
 	// Spawn a new instance of the actor at the location of the clicked tile
-	GetWorld()->SpawnActor<AThief>(thiefMesh, GetActorLocation(), FRotator::ZeroRotator);
+	thief = GetWorld()->SpawnActor<AThief>(thiefMesh, GetActorLocation(), FRotator::ZeroRotator);
 	this->hasThief = true;
+	for (int8 i = 0; i < 6; ++i) {
+		if (this->tileType == EHexTile::DESERT) {
+			return;
+		}
+		if (this->settArray[i]->playerOwner == EPlayer::NONE) {
+			continue;
+		}
+		/*if (this->settArray[i]->playerOwner == stealer) {
+			continue;
+		}*/
+		this->settArray[i]->stealResource(stealer);
+		return;
+	}
 }
 

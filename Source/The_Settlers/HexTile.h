@@ -19,8 +19,7 @@ enum class EHexTile : uint8 {
 	TRADE = 7
 };
 UCLASS()
-class THE_SETTLERS_API AHexTile : public AActor
-{
+class THE_SETTLERS_API AHexTile : public AActor{
 	GENERATED_BODY()
 public:
 
@@ -28,14 +27,12 @@ public:
 	TArray<ASettlement*> settArray;
 	UPROPERTY(EditAnywhere, Category = "Thief")
 	TSubclassOf<AThief> thiefMesh;
-
-	AHexTileSpawner* hexSpawner;
-
+	AGameManager* game;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlements")
 	int32 number;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thief")
 	bool hasThief = false;
-
+	AThief* thief;
 	AHexTile();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
@@ -47,5 +44,5 @@ public:
 	UStaticMeshComponent* TileMesh;
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void thiefMove();
+	void thiefMove(EPlayer stealer);
 };

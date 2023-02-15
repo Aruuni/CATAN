@@ -79,7 +79,6 @@ public:
 
 	bool DiceRolled(int32 dice);
 
-	void thiefInnit();
+	AThief* thiefInnit();
 
-	void resetThief();
 };
