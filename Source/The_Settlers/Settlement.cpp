@@ -34,6 +34,7 @@ void ASettlement::SettlementBuyer(EPlayer player) {
                                 --inv.wool;
                                 --inv.wheat;
                                 ++inv.settlements;
+                                ++inv.victoryPoints;
                                 this->settlementLock(player);
                             }
                         }
