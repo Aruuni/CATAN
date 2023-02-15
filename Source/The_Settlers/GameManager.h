@@ -29,8 +29,16 @@ struct FPlayerInventory {
 	void removeHalf();
 	int16 total();
 	void removeOneRand();
+	TArray<ECards> hand;
 };
-
+UENUM(BlueprintType)
+enum class ECards :uint8 {
+	VICTORYPOINT,
+	KNIGHT,
+	FREEROAD,
+	YEAROFPLENTY,
+	MONOPOLY
+};
 UENUM(BlueprintType)
 enum class EResource : uint8 {
 	ZERO,
@@ -58,39 +66,36 @@ class THE_SETTLERS_API AGameManager : public AActor {
 public:
 	virtual void BeginPlay() override;
 	AGameManager();
+	//Turn Mechanics
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
+	EPlayer CurrentPlayer = EPlayer::PLAYER1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
+	float TurnDuration = 2000000000000000000.f; // Turn duration in seconds
+	FTimerHandle TurnTimerHandle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
+	int32 globalTurn;
+	void StartTurn();
+	void EndTurn();
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	void SkipTurn();
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	bool thiefRound = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	EPlayer CurrentPlayer = EPlayer::PLAYER1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	float TurnDuration = 2000000000000000000.f; // Turn duration in seconds
-	FTimerHandle TurnTimerHandle;
+	ECards cardInPlay;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	TArray<FPlayerInventory> playerInventories;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	int32 globalTurn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AHexTileSpawner* hexManager;
 
 
 
-	// Function to start a turn
-	void StartTurn();
-
-	// Function to end a turn
-	void EndTurn();
-
-	// Function to skip the turn
-	UFUNCTION(BlueprintCallable, Category = "Function")
-		void SkipTurn();
-
-
 	void resOut();
+
 	void resOut2();
 };

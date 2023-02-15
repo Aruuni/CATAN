@@ -119,7 +119,7 @@ void AGameManager::resOut2() {
 }
 void FPlayerInventory::removeHalf() {
 	int16 totalRes = total();
-	if (totalRes < 7) {
+	if (totalRes < 8) {
 		return;
 	}
 	for (int8 i = 0; i < totalRes/ 2; ++i) {
@@ -127,8 +127,6 @@ void FPlayerInventory::removeHalf() {
 	}
 }
 int16 FPlayerInventory::total() {
-	FString mesage = FString::Printf(TEXT("Total INV     : %d"), this->wheat + this->bricks + this->ore + this->wool + this->wood);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, mesage);
 	return this->wheat + this->bricks + this->ore + this->wool + this->wood;
 }
 void FPlayerInventory::removeOneRand() {
