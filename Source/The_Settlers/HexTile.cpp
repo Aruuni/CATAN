@@ -21,7 +21,12 @@ void AHexTile::settSet() {
 }
 void AHexTile::thiefMove(EPlayer stealer) {
 	for (int8 i = 0; i < 4; ++i) {
-		game->playerInventories[i].removeHalf();
+		if (game) {
+			game->playerInventories[i].removeHalf();
+		}
+		else {
+			return;
+		}
 	}
 	FVector currLoc = thief->GetActorLocation();
 	TArray<AActor*> foundActors;
@@ -43,15 +48,12 @@ void AHexTile::thiefMove(EPlayer stealer) {
 	thief = GetWorld()->SpawnActor<AThief>(thiefMesh, GetActorLocation(), FRotator::ZeroRotator);
 	this->hasThief = true;
 	for (int8 i = 0; i < 6; ++i) {
-		if (this->tileType == EHexTile::DESERT) {
-			return;
-		}
 		if (this->settArray[i]->playerOwner == EPlayer::NONE) {
 			continue;
 		}
-		/*if (this->settArray[i]->playerOwner == stealer) {
+		if (this->settArray[i]->playerOwner == stealer) {
 			continue;
-		}*/
+		}
 		this->settArray[i]->stealResource(stealer);
 		return;
 	}

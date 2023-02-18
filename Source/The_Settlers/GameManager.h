@@ -5,39 +5,53 @@
 #include "GameFramework/Actor.h"
 #include "GameManager.generated.h"
 
+class ACardManager;
 class AHexTileSpawner;
+UENUM(BlueprintType)
+enum class ECards :uint8 {
+	NONE,
+	VICTORYPOINT,
+	KNIGHT,
+	FREEROAD,
+	YEAROFPLENTY,
+	MONOPOLY
+};
 
 USTRUCT(BlueprintType)
 struct FPlayerInventory {
 	GENERATED_BODY()
+	
+	AGameManager* game;
 	EPlayer player;
 	int16 wheat;
 	int16 ore;
 	int16 wool;
 	int16 wood;
 	int16 bricks;
-	//max of 5
 	int16 settlements;
-	//max of 4
 	int16 cities;
-	//max of 15
 	int16 roads;
 	int16 victoryPoints;
+
 	bool canBuySett = true;
 	bool canBuyRoad = true;
-	// maxes are conditionals on settlement buying onclick
-	void removeHalf();
-	int16 total();
-	void removeOneRand();
+
+
+	bool drawed = false;
+	bool cardplayed = false;
+	ECards unplayable;
+	
 	TArray<ECards> hand;
-};
-UENUM(BlueprintType)
-enum class ECards :uint8 {
-	VICTORYPOINT,
-	KNIGHT,
-	FREEROAD,
-	YEAROFPLENTY,
-	MONOPOLY
+	//resources
+	int16 total();	
+	void removeOneRand();
+	void removeHalf();
+
+
+	void drawCard();
+	ECards playCard(ECards card);
+	void resetCards();
+	bool canPlayCard(ECards card);
 };
 UENUM(BlueprintType)
 enum class EResource : uint8 {
@@ -69,17 +83,18 @@ public:
 	//Turn Mechanics
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
 	EPlayer CurrentPlayer = EPlayer::PLAYER1;
+
+	TArray<ECards> globalDeck;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
-	float TurnDuration = 2000000000000000000.f; // Turn duration in seconds
+	float TurnDuration = 2.f; // Turn duration in seconds
 	FTimerHandle TurnTimerHandle;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
 	int32 globalTurn;
 	void StartTurn();
 	void EndTurn();
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void SkipTurn();
-
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	bool thiefRound = false;
@@ -92,10 +107,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AHexTileSpawner* hexManager;
-
+	UFUNCTION(BlueprintCallable, Category = "Function")
 
 
 	void resOut();
 
 	void resOut2();
+	// cards 
+	void drawCard(EPlayer drawer);
+	void playCard(EPlayer player, ECards card);
+
+	void kngithSetup();
+	void monopoly();
 };

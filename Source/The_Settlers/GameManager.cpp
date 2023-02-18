@@ -4,22 +4,40 @@
 #include <Kismet/GameplayStatics.h>
 
 
-
 AGameManager::AGameManager() {}
 // Called when the game starts or when spawned
 void AGameManager::BeginPlay() {
-	UWorld* world = GetWorld();
+	for (int8 i = 0; i < 26; ++i) {
+		if (i < 15) {
+			globalDeck.Add(ECards::KNIGHT);
+			continue;
+		}
+		if (i < 20) {
+			globalDeck.Add(ECards::VICTORYPOINT);
+			continue;
+		}
+		if (i < 22) {
+			globalDeck.Add(ECards::MONOPOLY);
+			continue;
+		}
+		if (i < 24) {
+			globalDeck.Add(ECards::YEAROFPLENTY);
+			continue;
+		}
+		if (i < 26) {
+			globalDeck.Add(ECards::FREEROAD);
+			continue;
+		}
+	}
 	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(world, AHexTileSpawner::StaticClass(), foundActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexTileSpawner::StaticClass(), foundActors);
 	for (AActor* foundActor : foundActors) {
 		hexManager = Cast<AHexTileSpawner>(foundActor);
 	}
-	playerInventories.SetNumZeroed(4);
-	//pushing ps
 	for (int8 p = 0; p < 4; ++p) {
 		FPlayerInventory player;
+		player.game = this;
 		player.player = (EPlayer)(p + 1);
-		// for debugging
 		player.bricks = 5;
 		player.wheat = 5;
 		player.ore = 5;
@@ -29,7 +47,7 @@ void AGameManager::BeginPlay() {
 		player.cities = 0;
 		player.roads = 0;
 		player.victoryPoints = 0;
-		playerInventories[p] = player;
+		playerInventories.Add(player);
 	}
 	StartTurn();
 }
@@ -49,7 +67,7 @@ void AGameManager::StartTurn() {
 
 	hexManager->DiceRolled(dice1 + dice2);
 
-	//resOut();
+	resOut();
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 
 }
@@ -66,7 +84,7 @@ void AGameManager::EndTurn() {
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
 	globalTurn++;
-
+	playerInventories[(int32)CurrentPlayer].resetCards();
 	// Start the next turn
 	StartTurn();
 }
@@ -96,6 +114,9 @@ void AGameManager::resOut() {
 		GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, null);
 	}
 }
+void AGameManager::drawCard(EPlayer drawer) {
+	this->playerInventories[(int32)drawer-1].drawCard();
+}
 void AGameManager::resOut2() {
 	int debugdurr = 3.f;
 	for (int8 i = 0; i < 4; ++i) {
@@ -117,6 +138,17 @@ void AGameManager::resOut2() {
 		GEngine->AddOnScreenDebugMessage(-1, debugdurr, FColor::Purple, null);
 	}
 }
+void AGameManager::playCard(EPlayer player, ECards card) {
+	cardInPlay = playerInventories[(int32)player+1].playCard(card);
+	if (cardInPlay == ECards::KNIGHT) {
+
+	}
+}
+void AGameManager::kngithSetup(){
+	//knight shit
+}
+
+
 void FPlayerInventory::removeHalf() {
 	int16 totalRes = total();
 	if (totalRes < 8) {
@@ -165,4 +197,55 @@ void FPlayerInventory::removeOneRand() {
 		}
 		--this->wool;
 	}
+}
+void FPlayerInventory::drawCard() {
+	FString message = FString::Printf(TEXT("card added"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, message);
+	if (game->globalDeck.Num() == 0) {
+		return;
+	}
+	if (this->ore ==0 || this->wheat ==	0 || this->wool == 0) {
+		return;
+	}
+
+	--this->ore;
+	--this->wheat;
+	--this->wool;
+	
+	int32 randomCard = rand() % game->globalDeck.Num();
+	this->hand.Add(game->globalDeck[randomCard]);
+	unplayable = game->globalDeck[randomCard];
+	game->globalDeck.RemoveAt(randomCard);
+	this->drawed = true;
+}
+void FPlayerInventory::resetCards() {
+	this->drawed = false;
+	this->cardplayed = false;
+	this->unplayable = ECards::NONE;
+}
+ECards FPlayerInventory::playCard(ECards card) {
+	if (this->player == game->CurrentPlayer) {
+		if (canPlayCard(card)) {
+			hand.Remove(card);
+			return card;
+		}
+	}
+	return ECards::NONE;
+}
+bool FPlayerInventory::canPlayCard(ECards card) {
+	if (hand.Contains(card)) {
+		if (card == unplayable) {
+			int count = 0;
+			for (int8 i = 0; i < hand.Num(); ++i) {
+				if (hand[i] == card) {
+					++count;
+				}
+			}
+			if (count > 1) {
+				return true;
+			}
+		}
+		return true;
+	}
+	return false;
 }
