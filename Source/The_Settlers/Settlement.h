@@ -1,5 +1,7 @@
 #pragma once
+
 #include "GameManager.h"
+#include "ENUMS.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Road.h"
@@ -49,11 +51,12 @@ public:
 	ASettlement();
 
 	void stealResource(EPlayer stealer);
+
+
 	void settlementLock(EPlayer player);
 	bool roadAdjacency(EPlayer player);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	int32 checkMaxResources(EResource resource);
 
 	virtual void BeginPlay() override;
 };

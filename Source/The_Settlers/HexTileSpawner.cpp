@@ -5,16 +5,14 @@
 #include "NumberTile.h"
 #include <Kismet/GameplayStatics.h>
 
-
 AHexTileSpawner::AHexTileSpawner() {}
-
+// REFACTOR LATER LOW PRIORITY
 // Called when the game starts or when spawned
 void AHexTileSpawner::BeginPlay() {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGameManager::StaticClass(), foundActors);
-	for (AActor* foundActor : foundActors) {
-		game = Cast<AGameManager>(foundActor);
-	}
+	for (AActor* foundActor : foundActors) { game = Cast<AGameManager>(foundActor); }
+
 	AThief* originThief = thiefInnit();
 	gridArray.SetNumZeroed(19);
 	AHexTile* origin = GetWorld()->SpawnActor<AHexTile>(DESERT, FVector(FIntPoint(0, 0)), FRotator::ZeroRotator);
@@ -61,9 +59,7 @@ bool AHexTileSpawner::DiceRolled(int32 dice) {
 				for (int8 sett = 0; sett < 6; ++sett) {
 					ASettlement* cSett = gridArray[i]->settArray[sett];
 					AHexTile* hex = gridArray[i];
-					if (hex->hasThief) {
-						return false;
-					}
+					if (hex->hasThief) { return false;}
 					cSett->AddResource((EResource)hex->tileType);
 				}
 			}
@@ -77,8 +73,6 @@ bool AHexTileSpawner::DiceRolled(int32 dice) {
 	return true;
 }
 
-AThief* AHexTileSpawner::thiefInnit() {
-	return GetWorld()->SpawnActor<AThief>(thiefMesh, FVector(0, 0, 0), FRotator::ZeroRotator);
-}
+AThief* AHexTileSpawner::thiefInnit() { return GetWorld()->SpawnActor<AThief>(thiefMesh, FVector(0, 0, 0), FRotator::ZeroRotator); }
 
 

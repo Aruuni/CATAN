@@ -22,7 +22,7 @@ void AHexTile::settSet() {
 void AHexTile::thiefMove(EPlayer stealer) {
 	for (int8 i = 0; i < 4; ++i) {
 		if (game) {
-			game->playerInventories[i].removeHalf();
+			game->players->stealAll();
 		}
 		else {
 			return;
@@ -44,7 +44,6 @@ void AHexTile::thiefMove(EPlayer stealer) {
 		}
 	}
 	
-	// Spawn a new instance of the actor at the location of the clicked tile
 	thief = GetWorld()->SpawnActor<AThief>(thiefMesh, GetActorLocation(), FRotator::ZeroRotator);
 	this->hasThief = true;
 	for (int8 i = 0; i < 6; ++i) {

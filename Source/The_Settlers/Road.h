@@ -12,13 +12,13 @@ class THE_SETTLERS_API ARoad : public AActor
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ROAD")
-		bool bought = false;
+	bool bought = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ROAD")
-		EPlayer playerOwner;
+	EPlayer playerOwner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ROAD")
-		TSubclassOf<ABuilding> Road;
+	TSubclassOf<ABuilding> Road;
 	ARoad();
 
 
