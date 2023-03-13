@@ -32,7 +32,7 @@ void AHexTileSpawner::BeginPlay() {
 		gridArray[hex] = newTile;
 		++counter;
 	}
-
+	
 	TArray<AActor*> foundActors2;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexTileSpawner::StaticClass(), foundActors2);
 	for (AActor* foundActor : foundActors2) {
