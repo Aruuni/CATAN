@@ -15,9 +15,10 @@ PlayerInventory::PlayerInventory(EPlayer player, int32* Gbricks, int32* Gwool, i
 
 #pragma region BORING GETTERS
 
-bool PlayerInventory::canBuyRoad() { return this->canBuyRoadbool; }
-bool PlayerInventory::canBuySett() { return this->canBuySettbool; }
-bool PlayerInventory::canUpgrade() { return this->canUpgradebool; }
+bool PlayerInventory::canBuyRoad() { return this->canBuyRoadbool && roads <=15; }
+bool PlayerInventory::canBuySett() { return this->canBuySettbool && settlements<=5; }
+// do later TODO
+bool PlayerInventory::canUpgrade() { return this->canUpgradebool ; }
 
 #pragma endregion
 
@@ -148,7 +149,7 @@ rereoll:
 }
 
 void PlayerInventory::resOut(){
-	float TurnDuration = 2.f;
+	float TurnDuration = 5.f;
 	FString null2 = FString::Printf(TEXT("                     "));
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, null2);
 	FString bricksout = FString::Printf(TEXT("Bricks     : %d"), this->bricks);

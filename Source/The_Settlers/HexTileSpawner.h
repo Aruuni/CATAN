@@ -2,22 +2,24 @@
 
 #include "GameManager.h"
 #include "CoreMinimal.h"
+#include "Engine.h"
 #include "GameFramework/Actor.h"
 #include "NumberTile.h"
 #include "HexTileSpawner.generated.h"
 
 class AHexTile;
+
 UCLASS()
 class THE_SETTLERS_API AHexTileSpawner : public AActor {
 	GENERATED_BODY()
 
 public:
-	AHexTileSpawner();
-	virtual void BeginPlay() override;
-	AGameManager* game;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Grid")
-	TArray<AHexTile*> gridArray;
+	AHexTileSpawner();
+	virtual void BeginPlay() override;	
+	//static
+	inline static AHexTileSpawner* hexManager;
+	inline static TArray<AHexTile*> gridArray;
 	TArray<FVector> catanGrid = {
 		FVector(0.0, 0.0, 0.0),
 		FVector(458.0, -793.0, 0.0),
@@ -52,6 +54,7 @@ public:
 	TSubclassOf<AHexTile> PASTURE;
 	UPROPERTY(EditAnywhere, Category = "Hex-Grid")
 	TSubclassOf<AHexTile> DESERT;
+
 	//number grid
 	UPROPERTY(EditAnywhere, Category = "Number-Grid")
 	TSubclassOf<ANumberTile> TWO;
@@ -73,12 +76,8 @@ public:
 	TSubclassOf<ANumberTile> ELEVEN;
 	UPROPERTY(EditAnywhere, Category = "Number-Grid")
 	TSubclassOf<ANumberTile> TWELVE;
-	//thief
-	UPROPERTY(EditAnywhere, Category = "Thief")
-	TSubclassOf<AThief> thiefMesh;
 
 	bool DiceRolled(int32 dice);
 
-	AThief* thiefInnit();
 
 };

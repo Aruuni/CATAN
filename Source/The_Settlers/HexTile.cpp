@@ -3,6 +3,8 @@
 #include <Components/SceneCaptureComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include <Kismet/GameplayStatics.h>
+
+
 class AHexSpawner;
 AHexTile::AHexTile() {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
@@ -19,42 +21,12 @@ void AHexTile::settSet() {
 		}
 	}
 }
-void AHexTile::thiefMove(EPlayer stealer) {
-	for (int8 i = 0; i < 4; ++i) {
-		if (game) {
-			game->players->stealAll();
-		}
-		else {
-			return;
-		}
-	}
-	FVector currLoc = thief->GetActorLocation();
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexTile::StaticClass(), foundActors);
-	for (AActor* foundActor : foundActors) {
-		AHexTile* hex = Cast<AHexTile>(foundActor);
-		hex->hasThief = false;
-	}
-	TArray<AActor*> foundMONKEY;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AThief::StaticClass(), foundMONKEY);
-	for (AActor* Actor : foundMONKEY) {
-		AThief* pastthief = Cast<AThief>(Actor);
-		if (pastthief) {
-			pastthief->Destroy();
-		}
-	}
-	
-	thief = GetWorld()->SpawnActor<AThief>(thiefMesh, GetActorLocation(), FRotator::ZeroRotator);
-	this->hasThief = true;
-	for (int8 i = 0; i < 6; ++i) {
-		if (this->settArray[i]->playerOwner == EPlayer::NONE) {
-			continue;
-		}
-		if (this->settArray[i]->playerOwner == stealer) {
-			continue;
-		}
-		this->settArray[i]->stealResource(stealer);
-		return;
-	}
+
+EPlayer AHexTile::getCurrentPlayer() {
+	return AGameManager::CurrentPlayer;
+}
+
+bool AHexTile::checkThiefLock() {
+	return AGameManager::thiefLock;
 }
 

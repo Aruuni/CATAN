@@ -7,17 +7,11 @@ ARoad::ARoad() {}
 
 void ARoad::RoadBuyer(EPlayer player) {
 	if (bought) { return; }
-	PlayerInventory* inv;
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGameManager::StaticClass(), foundActors);
-	for (AActor* foundActor : foundActors) { 
-		AGameManager* game = Cast<AGameManager>(foundActor);
-		inv = game->players->getPlayer(player);
-		//if (game->CurrentPlayer != player) { return; }
-		if (!inv->canBuyRoad()) { return; }
-		if (inv->roads == 15) { return; }
+	PlayerInventory* inv = AGameManager::gameGlobal->players->getPlayer(player);
+	//if (game->CurrentPlayer != player) { return; }
+	if (inv->canBuyRoad()) { 
 		if (RoadDetector(player) || SettlementDetector(player)) {
-			if (game->globalTurn < 9) {
+			if (AGameManager::gameGlobal->globalTurn < 9) {
 				ABuilding* spawnedBuilding = GetWorld()->SpawnActor<ABuilding>(Road, GetActorLocation(), FRotator::ZeroRotator);
 				bought = true;
 				playerOwner = player;
@@ -32,8 +26,6 @@ void ARoad::RoadBuyer(EPlayer player) {
 			}
 		}
 	}
-	
-	
 }
 
 bool ARoad::RoadDetector(EPlayer player) {

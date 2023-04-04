@@ -18,31 +18,32 @@ public:
 	virtual void BeginPlay() override;
 	AGameManager();
 	//Turn Mechanics
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
-	EPlayer CurrentPlayer = EPlayer::PLAYER1;
+	inline static EPlayer CurrentPlayer;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	ECards cardInPlay;
 
-	Players* players;
+	inline static Players* players;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
-	float TurnDuration = 2.f; // Turn duration in seconds
+	inline static AGameManager* gameGlobal;
+
+
+	// Turn duration in seconds
+	//cvhange manually in the player inventories res out bc for some reason you cant have a static float???
+	float TurnDuration = 5.f;
 	FTimerHandle TurnTimerHandle;
 
+	inline static bool thiefLock = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
 	int32 globalTurn;
 	void StartTurn();
 	void EndTurn();
+
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void SkipTurn();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	bool thiefRound = false;
 
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	AHexTileSpawner* hexManager;
 	UFUNCTION(BlueprintCallable, Category = "Function")
 
 	void kngithSetup();

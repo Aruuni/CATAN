@@ -4,8 +4,9 @@
 #include "Settlement.h"
 #include "GameFramework/Actor.h"
 #include "ENUMS.h"
+#include "GameManager.h"
 #include "HexTile.generated.h"
-class AThief;
+
 class  UstaticMeshComponent;
 
 
@@ -17,17 +18,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlements")
 	TArray<ASettlement*> settArray;
 
-	UPROPERTY(EditAnywhere, Category = "Thief")
-	TSubclassOf<AThief> thiefMesh;
-
-	AGameManager* game;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlements")
 	int32 number;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thief")
 	bool hasThief = false;
-	AThief* thief;
+
 	AHexTile();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
@@ -37,7 +34,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
 	UStaticMeshComponent* TileMesh;
-
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void thiefMove(EPlayer stealer);
+	EPlayer getCurrentPlayer();
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool checkThiefLock();
+	//UFUNCTION(BlueprintCallable, Category = "Function")
+
 };

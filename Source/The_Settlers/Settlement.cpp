@@ -9,19 +9,14 @@ ASettlement::ASettlement() {}
 
 void  ASettlement::BeginPlay() {
     Super::BeginPlay();
-    TArray<AActor*> foundActors;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGameManager::StaticClass(), foundActors);
-    for (AActor* foundActor : foundActors) { game = Cast<AGameManager>(foundActor); }
 }
 
 void ASettlement::SettlementBuyer(EPlayer player) {
-    if (locked) { return; }
-    if (bought) { return; }
+    if (locked || bought) { return; }
     //if (game->CurrentPlayer != player) { return; }
-    PlayerInventory* inv = game->players->getPlayer(player);
-    if (inv->settlements == 5) { return; }
+    PlayerInventory* inv = AGameManager::gameGlobal->players->getPlayer(player);
     if (inv->canBuySett()) {
-        if (game->globalTurn < 9) {
+        if (AGameManager::gameGlobal->globalTurn < 9) {
             ABuilding* spawnedBuilding = GetWorld()->SpawnActor<ABuilding>(Level1, GetActorLocation(), FRotator::ZeroRotator);
             building = spawnedBuilding;
             bought = true;
@@ -55,14 +50,14 @@ void ASettlement::Upgrade() {
 
 void ASettlement::AddResource(EResource type) {
     if (playerOwner == EPlayer::NONE) { return; } 
-    PlayerInventory* inv = game->players->getPlayer(playerOwner);
+    PlayerInventory* inv = AGameManager::gameGlobal->players->getPlayer(playerOwner);
     inv->addResource(type);
     if (upgraded) { inv->addResource(type); }
 }
 
 void ASettlement::stealResource(EPlayer stealer) {
-    PlayerInventory* stealInv = game->players->getPlayer(stealer);
-    PlayerInventory* currInv = game->players->getPlayer(playerOwner);
+    PlayerInventory* stealInv = AGameManager::gameGlobal->players->getPlayer(stealer);
+    PlayerInventory* currInv = AGameManager::gameGlobal->players->getPlayer(playerOwner);
    /////////////////////////////////////////////////////////////////////
 }
 

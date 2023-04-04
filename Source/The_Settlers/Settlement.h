@@ -26,12 +26,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Owner")
 	EPlayer playerOwner;
 
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement")
-	AGameManager* game;
-
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-1")
 	TSubclassOf<ABuilding> Level1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-2")

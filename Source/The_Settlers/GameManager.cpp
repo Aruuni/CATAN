@@ -6,10 +6,8 @@
 AGameManager::AGameManager() {}
 // Called when the game starts or when spawned
 void AGameManager::BeginPlay() {
-
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexTileSpawner::StaticClass(), foundActors);
-	for (AActor* foundActor : foundActors) { hexManager = Cast<AHexTileSpawner>(foundActor); }
+	CurrentPlayer = EPlayer::PLAYER1;
+	this->gameGlobal = this;
 	players = new Players(0,0,0,0,0);
 	StartTurn();
 }
@@ -17,7 +15,7 @@ void AGameManager::BeginPlay() {
 #pragma region Turn Mechanics --------- NOT DONE  -----------
 
 void AGameManager::StartTurn() {
-	thiefRound = false;
+	thiefLock = false;
 	FString message = FString::Printf(TEXT("Turn of player: %d"), (int32)CurrentPlayer);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, message);
 
@@ -27,7 +25,9 @@ void AGameManager::StartTurn() {
 	FString roll2 = FString::Printf(TEXT("Dice  rolls:    %d"), dice2 + dice1);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, roll2);
 
-	hexManager->DiceRolled(dice1 + dice2);
+	if (AHexTileSpawner::hexManager->DiceRolled(7) == true) {
+		thiefLock = false;
+	}
 	players->resOut();
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 
@@ -44,6 +44,7 @@ void AGameManager::EndTurn() {
 	globalTurn++;
 	players->refreshAll();
 	// Start the next turn
+	thiefLock = true;
 	StartTurn();
 }
 
@@ -58,7 +59,6 @@ void AGameManager::SkipTurn() {
 void AGameManager::kngithSetup(){
 	//knight shit
 }
-
 
 
 
