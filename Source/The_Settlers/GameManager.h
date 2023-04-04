@@ -50,4 +50,6 @@ public:
 	void monopoly();
 	// shoudl be private
 	TArray<ECards> deckMaker(int knight, int vp, int monopoly, int yop, int roads);
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	FString getResourceHUD(EPlayer player, EResource resource);
 };

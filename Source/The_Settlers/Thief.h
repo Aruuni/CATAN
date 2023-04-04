@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "HexTile.h"
+#include "HexTileSpawner.h"
 #include "GameFramework/Actor.h"
 #include "GameManager.h"
 #include "Thief.generated.h"
@@ -16,7 +17,7 @@ public:
 
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thief")
-	AHexTile* attchedTile;
+	AHexTile* attachedTile;
 
 	inline static AThief* thief;
 
@@ -24,6 +25,6 @@ public:
 	UStaticMeshComponent* thiefMesh;
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void moveThief(FVector loc, AHexTile* newLocation);
+	void moveThief(FVector loc, AHexTile* newTile);
 
 };

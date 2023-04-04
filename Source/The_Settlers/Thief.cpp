@@ -14,9 +14,14 @@ void AThief::BeginPlay() {
 }
 	
 
-void AThief::moveThief(FVector loc, AHexTile* newLocation) {
-	attchedTile = newLocation;
+void AThief::moveThief(FVector loc, AHexTile* newTile) {
+	if (attachedTile != nullptr) {
+		attachedTile->hasThief = false;
+	}
+	attachedTile = newTile;
+	attachedTile->hasThief = true;
 	AGameManager::thiefLock = true;
+	AGameManager::players->stealAll();
 	this->SetActorLocation(loc);
 }
 

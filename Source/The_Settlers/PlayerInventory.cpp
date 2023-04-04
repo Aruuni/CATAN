@@ -177,6 +177,14 @@ void PlayerInventory::addResource(EResource resource) {
 	if (resource == EResource::WOOD) { if (*Gwood <= 18) { ++wood; ++Gwood; } }
 }
 
+int32 PlayerInventory::getResource(EResource resource) {
+	if (resource == EResource::ORE) {
+		return ore;
+	}
+	return 6;
+}
+
+
 void PlayerInventory::stealResource(PlayerInventory p1, PlayerInventory p2, EResource resource) {
 	p1.addResource(resource);
 	if (resource == EResource::WHEAT) { --p2.wheat; }

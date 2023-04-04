@@ -60,5 +60,8 @@ void AGameManager::kngithSetup(){
 	//knight shit
 }
 
+FString AGameManager::getResourceHUD(EPlayer player, EResource resource) {
+	return FString::FromInt(players->getPlayer(player)->getResource(resource));
+}
 
 
