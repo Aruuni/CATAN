@@ -7,7 +7,7 @@ ARoad::ARoad() {}
 
 void ARoad::RoadBuyer(EPlayer player) {
 	if (bought) { return; }
-	PlayerInventory* inv = AGameManager::gameGlobal->players->getPlayer(player);
+	PlayerInventory* inv = AGameManager::gameGlobal->getPlayer(player);
 	//if (game->CurrentPlayer != player) { return; }
 	if (inv->canBuyRoad()) { 
 		if (RoadDetector(player) || SettlementDetector(player)) {

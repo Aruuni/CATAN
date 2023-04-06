@@ -1,13 +1,10 @@
 #include "PlayerInventory.h"
 #include "ENUMS.h"	
 
-PlayerInventory::PlayerInventory(EPlayer player, int32* Gbricks, int32* Gwool, int32* Gwood, int32* GWheat, int32* Gore, TArray<ECards>* Gdeck) {
+PlayerInventory::PlayerInventory(EPlayer player, TArray<int32*> gResources, TArray<ECards>* Gdeck) {
 	this->player = player;
-	this->Gbricks = Gbricks;
-	this->Gwool = Gwool;
-	this->Gwood = Gwood;
-	this->Gwheat = GWheat;
-	this->Gore = Gore;
+	this->gResources = gResources;
+	this->Resources = {5,5,5,5,5};
 	this->Gdeck = Gdeck;
 }
 
@@ -26,9 +23,9 @@ bool PlayerInventory::canUpgrade() { return this->canUpgradebool ; }
 
 bool PlayerInventory::buyRoad() {
 	if (!canBuyRoad()) { return false; }
-	if (bricks >= 1 && wood >= 1) {
-		--wood;	--Gwood;
-		--bricks; --Gbricks;
+	if (Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
+		--Resources[(int32)EResource::WOOD]; --gResources[(int32)EResource::WOOD];
+		--Resources[(int32)EResource::BRICKS]; --gResources[(int32)EResource::BRICKS];
 		++roads;
 		canBuyRoadbool = false;
 		return true;
@@ -38,14 +35,14 @@ bool PlayerInventory::buyRoad() {
 
 bool PlayerInventory::buySettlement() {
 	if (!canBuySett()) { return false; }
-	if (wheat >= 1 && bricks >= 1 && wool >= 1 && wood >= 1) {
-		--wheat; --Gwheat;
-		--wood;	--Gwood;
-		--wool;	--Gwool;
-		--bricks; --Gbricks;
+	if (Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOL] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
+		--Resources[(int32)EResource::WHEAT]; --gResources[(int32)EResource::WHEAT];
+		--Resources[(int32)EResource::WOOD];	--gResources[(int32)EResource::WOOD];
+		--Resources[(int32)EResource::WOOL];	--gResources[(int32)EResource::WOOL];
+		--Resources[(int32)EResource::BRICKS]; --gResources[(int32)EResource::BRICKS];
 		++settlements;
 		++victoryPoints;
-		this->canBuySettbool = false;
+		canBuySettbool = false;
 		return true;
 	}
 	else { return false; }
@@ -53,10 +50,10 @@ bool PlayerInventory::buySettlement() {
 
 bool PlayerInventory::upgradeSettlement() {
 	if (!canUpgrade()) { return false; }
-	if (this->wheat >= 2 && this->ore >= 3) {
-		----this->wheat;
-		------this->ore;
-		this->canUpgradebool = false;
+	if (Resources[(int32)EResource::WHEAT] >= 2 && Resources[(int32)EResource::ORE] >= 3) {
+		----Resources[(int32)EResource::WHEAT]; ----gResources[(int32)EResource::WHEAT];
+		------Resources[(int32)EResource::ORE]; ------gResources[(int32)EResource::ORE];
+		canUpgradebool = false;
 		return true;
 	}
 	else { return false; }
@@ -67,12 +64,13 @@ bool PlayerInventory::upgradeSettlement() {
 #pragma endregion
 
 #pragma region Cards
+
 void PlayerInventory::drawCard() {
 	if (!canDrawCardbool) { return; }
-	if (this->ore >=1 && this->wheat >= 1 && this->wool >= 1) {
-		--this->ore;
-		--this->wheat;
-		--this->wool;
+	if (Resources[(int32)EResource::ORE] >=1 && Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::WOOL] >= 1) {
+		--Resources[(int32)EResource::ORE]; --gResources[(int32)EResource::ORE];
+		--Resources[(int32)EResource::WHEAT]; --gResources[(int32)EResource::WHEAT];
+		--Resources[(int32)EResource::WOOL]; --gResources[(int32)EResource::WOOL];
 		int32 randno = rand() % Gdeck->Num();
 		hand.Add((*Gdeck)[randno]);
 		unplayable = (*Gdeck)[randno];
@@ -82,15 +80,15 @@ void PlayerInventory::drawCard() {
 	else { return; }
 }
 
-ECards PlayerInventory::useCard(ECards card) {
-	if (card == unplayable) { if (!moreThanOne(card)) { return ECards::NONE; } }
+bool PlayerInventory::useCard(ECards card) {
+	if (card == unplayable) { if (!moreThanOne(card)) { return false; } }
 	int32 cardIndex = hand.Find(card);
 	if (cardIndex != INDEX_NONE) {
 		ECards removedCard = this->hand[cardIndex];
 		hand.RemoveAt(cardIndex);
-		return removedCard;
+		return true;
 	}
-	return ECards::NONE;
+	return false;
 }
 
 bool PlayerInventory::moreThanOne(ECards card){
@@ -120,31 +118,31 @@ void PlayerInventory::removeHalf() {
 
 
 
-int32 PlayerInventory::total() { return bricks + ore + wool + wood + wheat; }
+int32 PlayerInventory::total() { return Resources[0] + Resources[1] + Resources[2] + Resources[3] + Resources[4]; }
 
 void PlayerInventory::removeOneRand(){
 rereoll:
-	if (wheat == 0 && bricks == 0 && ore == 0 && wood == 0 && wool == 0) { return; }
+	if (Resources[(int32)EResource::WHEAT] == 0 && Resources[(int32)EResource::BRICKS] == 0 && Resources[(int32)EResource::ORE] == 0 && Resources[(int32)EResource::WOOD] == 0 && Resources[(int32)EResource::WOOL] == 0) { return; }
 	int randomResource = rand() % 5;
 	if (randomResource == 0) {
-		if (bricks == 0) { goto rereoll; }
-		--bricks; --Gbricks;
+		if (Resources[(int32)EResource::BRICKS] == 0) { goto rereoll; }
+		--Resources[(int32)EResource::BRICKS]; --gResources[(int32)EResource::BRICKS];
 	}
 	if (randomResource == 1) {
-		if (wheat == 0) { goto rereoll; }
-		--wheat; --Gwheat;
+		if (Resources[(int32)EResource::WHEAT] == 0) { goto rereoll; }
+		--Resources[(int32)EResource::WHEAT]; --gResources[(int32)EResource::WHEAT];
 	}
 	if (randomResource == 2) {
-		if (ore == 0) { goto rereoll; }
-		--ore; --Gore;
+		if (Resources[(int32)EResource::ORE] == 0) { goto rereoll; }
+		--Resources[(int32)EResource::ORE]; --gResources[(int32)EResource::ORE];
 	}
 	if (randomResource == 3) {
-		if (wood == 0) { goto rereoll; }
-		--wood; --Gwood;
+		if (Resources[(int32)EResource::WOOD] == 0) { goto rereoll; }
+		--Resources[(int32)EResource::WOOD]; --gResources[(int32)EResource::WOOD];
 	}
 	if (randomResource == 4) {
-		if (wool == 0) { goto rereoll; }
-		--wool; --Gwool;
+		if (Resources[(int32)EResource::WOOL] == 0) { goto rereoll; }
+		--Resources[(int32)EResource::WOOL]; --gResources[(int32)EResource::WOOL];
 	}
 }
 
@@ -152,15 +150,15 @@ void PlayerInventory::resOut(){
 	float TurnDuration = 5.f;
 	FString null2 = FString::Printf(TEXT("                     "));
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, null2);
-	FString bricksout = FString::Printf(TEXT("Bricks     : %d"), this->bricks);
+	FString bricksout = FString::Printf(TEXT("Bricks     : %d"), Resources[(int32)EResource::BRICKS]);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Orange, bricksout);
-	FString woolout = FString::Printf(TEXT("Wool         : %d"), this->wool);
+	FString woolout = FString::Printf(TEXT("Wool         : %d"), Resources[(int32)EResource::WOOL]);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::White, woolout);
-	FString woodout = FString::Printf(TEXT("Wood         : %d"), this->wood);
+	FString woodout = FString::Printf(TEXT("Wood         : %d"), Resources[(int32)EResource::WOOD]);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Red, woodout);
-	FString wheatout = FString::Printf(TEXT("Wheat       : %d"), this->wheat);
+	FString wheatout = FString::Printf(TEXT("Wheat       : %d"), Resources[(int32)EResource::WHEAT]);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, wheatout);
-	FString oreout = FString::Printf(TEXT("Ore           : %d"), this->ore);
+	FString oreout = FString::Printf(TEXT("Ore           : %d"), Resources[(int32)EResource::ORE]);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Silver, oreout);
 	FString playerout = FString::Printf(TEXT("Player         : %d"), (int32)this->player);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, playerout);
@@ -169,30 +167,25 @@ void PlayerInventory::resOut(){
 	
 }
 
-void PlayerInventory::addResource(EResource resource) {
-	if (resource == EResource::WHEAT) { if (*Gwheat <= 18) { ++wheat; ++Gwheat; } }
-	if (resource == EResource::BRICKS) { if (*Gbricks <= 18) { ++bricks; ++Gbricks; } }
-	if (resource == EResource::ORE) { if (*Gore <= 18) { ++ore; ++Gore; } }
-	if (resource == EResource::WOOL) { if (*Gwool <= 18) { ++wool; ++Gwool; } }
-	if (resource == EResource::WOOD) { if (*Gwood <= 18) { ++wood; ++Gwood; } }
+bool PlayerInventory::addResource(EResource resource) {
+	if (*gResources[(int32)resource-1] <= 18) { ++Resources[(int32)resource - 1]; ++gResources[(int32)resource - 1]; return true; }
+	return false;
 }
 
 int32 PlayerInventory::getResource(EResource resource) {
-	if (resource == EResource::ORE) {
-		return ore;
-	}
-	return 6;
+	return Resources[(int32)resource];
 }
 
 
-void PlayerInventory::stealResource(PlayerInventory p1, PlayerInventory p2, EResource resource) {
-	p1.addResource(resource);
-	if (resource == EResource::WHEAT) { --p2.wheat; }
-	if (resource == EResource::BRICKS) { --p2.bricks; }
-	if (resource == EResource::ORE) { --p2.ore; }
-	if (resource == EResource::WOOL) { --p2.wool; }
-	if (resource == EResource::WOOD) { --p2.wood; }
-}
+//void PlayerInventory::stealResource(PlayerInventory p1, PlayerInventory p2, EResource resource) {
+//	p1.addResource(resource);
+//	if (resource == EResource::WHEAT) { --p2.wheat; }
+//	if (resource == EResource::BRICKS) { --p2.bricks; }
+//	if (resource == EResource::ORE) { --p2.ore; }
+//	if (resource == EResource::WOOL) { --p2.wool; }
+//	if (resource == EResource::WOOD) { --p2.wood; }
+//}
 #pragma endregion
 
 
+ 

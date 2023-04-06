@@ -34,12 +34,11 @@ enum class EHexTile : uint8 {
 
 UENUM(BlueprintType)
 enum class EResource : uint8 {
-	NONE,
-	BRICKS = 1,
-	ORE = 2,
-	WOOD = 3,
-	WOOL = 4,
-	WHEAT = 5,
+	BRICKS = 0,
+	ORE = 1,
+	WOOD = 2,
+	WOOL = 3,
+	WHEAT = 4,
 };
 
 class THE_SETTLERS_API ENUMS{

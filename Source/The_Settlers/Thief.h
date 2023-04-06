@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CoreMinimal.h"
 #include "HexTile.h"
 #include "HexTileSpawner.h"
@@ -15,7 +16,7 @@ public:
 	// Sets default values for this actor's properties
 	AThief();
 
-	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thief")
 	AHexTile* attachedTile;
 

@@ -4,7 +4,6 @@
 #include "TimerManager.h"
 #include "CoreMinimal.h"
 #include "PlayerInventory.h"
-#include "Players.h"
 #include "GameFramework/Actor.h"
 #include "GameManager.generated.h"
 
@@ -17,14 +16,30 @@ class THE_SETTLERS_API AGameManager : public AActor {
 public:
 	virtual void BeginPlay() override;
 	AGameManager();
+	//Global resources
+	TArray<int32> gResources = {20,20,20,20,20};
+	TArray<ECards> Gdeck;
+	TArray<PlayerInventory*> invs;
+	void refreshAll();
+	void stealAll();
+	void resOut();
+	PlayerInventory* getPlayer(EPlayer player);
+	TArray<ECards> deckMaker(int knight, int vp, int monopoly, int yop, int roads);
+
+
+
+
+
+	//LOCKS
+	//Knigth lock not necessary, just needs to change the thief lock
+	inline static bool monopolyLock = false;
+	inline static bool yearOPlentyLock = false;
+	inline static bool thiefLock = false;
+
 	//Turn Mechanics
 	inline static EPlayer CurrentPlayer;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	ECards cardInPlay;
-
-	inline static Players* players;
-
-	inline static AGameManager* gameGlobal;
 
 
 	// Turn duration in seconds
@@ -32,7 +47,7 @@ public:
 	float TurnDuration = 5.f;
 	FTimerHandle TurnTimerHandle;
 
-	inline static bool thiefLock = false;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
 	int32 globalTurn;
 	void StartTurn();
@@ -42,14 +57,33 @@ public:
 	void SkipTurn();
 
 
+	inline static AGameManager* gameGlobal;
 
 
-	UFUNCTION(BlueprintCallable, Category = "Function")
-
-	void kngithSetup();
-	void monopoly();
-	// shoudl be private
-	TArray<ECards> deckMaker(int knight, int vp, int monopoly, int yop, int roads);
+	//BLUEPRINT INTEGRATION
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	FString getResourceHUD(EPlayer player, EResource resource);
+	//AUTO
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	void monopoly_AUTO();
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	void yearOPlenty_AUTO();
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	void freeRoads();
+	//MANUAL
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	void monopoly(EResource resource);
+	/*UFUNCTION(BlueprintCallable, Category = "Function")
+	void yearOPlenty();*/
+
+
+
+	//UFUNCTION(BlueprintCallable, Category = "Function")
+	//void monolopy(EPlayer player, EResource resource);
+
+
+
+	//UFUNCTION(BlueprintCallable, Category = "Function")
+	// ? getCardNumber(EPlayer, ECard/ just return a set) to connect to the hud and turn off the cards if they are 0 
+	
 };
