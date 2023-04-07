@@ -19,7 +19,7 @@ void AHexTileSpawner::BeginPlay() {
 		FRotator RotationValue(0.0f, rand() % 5 * 60, 0.0f);
 		AHexTile* newTile = GetWorld()->SpawnActor<AHexTile>(toSpawn[randno], catanGrid[hex], RotationValue);
 		newTile->settSet();
-		newTile->tileType = (EHexTile)(randno + 1);
+		newTile->tileType = (EHexTile)(randno);
 		gridArray[hex] = newTile;
 		++counter;
 	}
@@ -39,22 +39,16 @@ void AHexTileSpawner::BeginPlay() {
 
 bool AHexTileSpawner::DiceRolled(int32 dice) {	
 	if (dice != 7) {
-		for (int8 i = 0; i < gridArray.Num(); ++i) {
-			if (gridArray[i]->number == dice) {
+		for (int8 hex = 0; hex < gridArray.Num(); ++hex) {
+			if (gridArray[hex]->number == dice) {
 				for (int8 sett = 0; sett < 6; ++sett) {
-					ASettlement* cSett = gridArray[i]->settArray[sett];
-					AHexTile* hex = gridArray[i];
-					if (hex->hasThief) { return false;}
-					cSett->AddResource((EResource)hex->tileType);
+					gridArray[hex]->settArray[sett]->AddResource((EResource)gridArray[hex]->tileType);
 				}
 			}
 		}
+		return false;
 	}
-	else {
-		
-		FString null = FString::Printf(TEXT("Place Thief"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, null);
-		return true;
-	}
-	return false;
+	FString null = FString::Printf(TEXT("Place Thief"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, null);
+	return true;
 }

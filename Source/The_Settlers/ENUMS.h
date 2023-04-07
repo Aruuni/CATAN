@@ -22,12 +22,12 @@ enum class EPlayer : uint8 {
 
 UENUM(BlueprintType)
 enum class EHexTile : uint8 {
-	DESERT,
-	CLAY = 1,
-	MOUNTAIN = 2,
-	FORREST = 3,
-	PASTURE = 4,
-	FIELD = 5,
+	CLAY = 0,
+	MOUNTAIN = 1,
+	FORREST = 2,
+	PASTURE = 3,
+	FIELD = 4,
+	DESERT = 5,
 	SEA = 6,
 	TRADE = 7
 };

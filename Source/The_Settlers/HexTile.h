@@ -14,7 +14,7 @@ UCLASS()
 class THE_SETTLERS_API AHexTile : public AActor{
 	GENERATED_BODY()
 public:
-
+	AHexTile();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlements")
 	TArray<ASettlement*> settArray;
 
@@ -25,7 +25,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thief")
 	bool hasThief = false;
 
-	AHexTile();
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
 	EHexTile tileType;

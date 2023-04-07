@@ -1,29 +1,33 @@
 #include "GameManager.h"
+#include "PlayerInventory.h"
 #include "HexTileSpawner.h"
 #include "TimerManager.h"
 #include <Kismet/GameplayStatics.h>
 
-AGameManager::AGameManager() {
 
-	this->Gdeck = deckMaker(14, 6, 2, 2, 1);
-	TArray<int32*> pArray;
-	for (int32 in : gResources) { pArray.Add(&in); }
+AGameManager::AGameManager() {
+	CurrentPlayer = EPlayer::PLAYER1;
+	gameGlobal = this;
+	Gdeck = deckMaker(14, 6, 2, 2, 1);
+	bool test = false;
 	for (int8 i = 0; i < 4; ++i) {
-		invs.Add(new PlayerInventory((EPlayer)(i + 1), pArray, &Gdeck));
+		invs.Add(new PlayerInventory((EPlayer)(i + 1)));
+		if (!test) { invs[i]->addKnight(); }
 	}
 }
 // Called when the game starts or when spawned
 void AGameManager::BeginPlay() {
-	CurrentPlayer = EPlayer::PLAYER1;
-	this->gameGlobal = this;
 	StartTurn();
 }
 
 #pragma region Turn Mechanics 
 
 void AGameManager::StartTurn() {
+	FString turn = FString::Printf(TEXT("Turn : %d"), globalTurn);
+	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, turn);
 	FString message = FString::Printf(TEXT("Turn of player: %d"), (int32)CurrentPlayer);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, message);
+
 
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
@@ -31,7 +35,7 @@ void AGameManager::StartTurn() {
 	FString roll2 = FString::Printf(TEXT("Dice  rolls:    %d"), dice2 + dice1);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, roll2);
 
-	if (AHexTileSpawner::hexManager->DiceRolled(dice1+dice2) == true) {
+	if (AHexTileSpawner::hexManager->DiceRolled(dice1+dice2)) {
 		thiefLock = true;
 	}
 	resOut();
@@ -41,13 +45,21 @@ void AGameManager::StartTurn() {
 
 void AGameManager::EndTurn() {
 
-	
 	if (thiefLock) { stealAll(); }
 	thiefLock = false;
-	if (monopolyLock) { monopoly_AUTO(); }
+
+	if (monopolyLock) { monopoly((EResource) (rand() % 5)); }
 	monopolyLock = false;
+
 	if (yearOPlentyLock) { yearOPlenty_AUTO(); }
 	yearOPlentyLock = false;
+
+
+	largestArmy();
+
+
+
+
 	//Next turn 
 	refreshAll();
 	int32 CurrentPlayerInt = (int32)CurrentPlayer;
@@ -94,21 +106,32 @@ void AGameManager::monopoly(EResource resource) {
 		inv->Resources[(int32)resource] = 0;
 	}
 }
-void AGameManager::monopoly_AUTO() {
-	int randomNumber = rand() % 5;
-	getPlayer(CurrentPlayer)->Resources[(int32)randomNumber] = gResources[(int32)randomNumber ];
-	for (PlayerInventory* inv : invs) {
-		if (inv->player == CurrentPlayer) {
-			continue;
-		}
-		inv->Resources[(int32)randomNumber + 1] = 0;
-	}
-}
 
 void AGameManager::freeRoads() {
 
 }
-//minor rewrite
+
+void AGameManager::knight() {
+	getPlayer(CurrentPlayer)->addKnight();
+	thiefLock = true;
+}
+void AGameManager::largestArmy() {
+	EPlayer playerVP = EPlayer::NONE;
+	int largest = 0;
+	for (PlayerInventory* inv : invs) {
+		if (inv->knights > largest) {
+			//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("swapped")));
+			largest = inv->knights;
+			playerVP = inv->player;
+		}
+	}
+	if (playerVP != largestArmyPlayer) {
+		if (largestArmyPlayer != EPlayer::NONE) { ----getPlayer(largestArmyPlayer)->victoryPoints; }
+		++++getPlayer(playerVP)->victoryPoints;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Player with largest army:    %d"), (int32)playerVP));
+}
+
 TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop, int roads) {
 	TArray<ECards> deck;
 	for (int8 i = 0; i < knight + vp + monopoly + yop + roads; ++i) {

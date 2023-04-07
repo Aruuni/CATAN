@@ -1,15 +1,14 @@
 #pragma once
+
 #include "ENUMS.h"
 #include "CoreMinimal.h"
 
 class THE_SETTLERS_API PlayerInventory{
 public:
-	PlayerInventory(EPlayer player, TArray<int32*> gResources, TArray<ECards>* Gdeck );
+	PlayerInventory(EPlayer player);
 	EPlayer player;
 	// pool respirces
-	TArray<int32*> gResources;
 	TArray<int32> Resources;
-	TArray<ECards>* Gdeck;
 
 	//this player
 	int32 settlements = 0;
@@ -40,7 +39,7 @@ public:
 	//cards management 
 	void drawCard();
 	bool useCard(ECards card);
-
+	void addKnight();
 	//inv management 
 	void removeHalf();
 	bool addResource(EResource resource);

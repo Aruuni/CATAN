@@ -1,21 +1,20 @@
 #include "PlayerInventory.h"
 #include "ENUMS.h"	
+#include "GameManager.h"
 
-PlayerInventory::PlayerInventory(EPlayer player, TArray<int32*> gResources, TArray<ECards>* Gdeck) {
+PlayerInventory::PlayerInventory(EPlayer player) {
 	this->player = player;
-	this->gResources = gResources;
 	this->Resources = {5,5,5,5,5};
-	this->Gdeck = Gdeck;
 }
 
 #pragma region Building
 
 #pragma region BORING GETTERS
 
-bool PlayerInventory::canBuyRoad() { return this->canBuyRoadbool && roads <=15; }
-bool PlayerInventory::canBuySett() { return this->canBuySettbool && settlements<=5; }
+bool PlayerInventory::canBuyRoad() { return canBuyRoadbool && roads <=15; }
+bool PlayerInventory::canBuySett() { return canBuySettbool && settlements<=5; }
 // do later TODO
-bool PlayerInventory::canUpgrade() { return this->canUpgradebool ; }
+bool PlayerInventory::canUpgrade() { return canUpgradebool ; }
 
 #pragma endregion
 
@@ -24,8 +23,8 @@ bool PlayerInventory::canUpgrade() { return this->canUpgradebool ; }
 bool PlayerInventory::buyRoad() {
 	if (!canBuyRoad()) { return false; }
 	if (Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
-		--Resources[(int32)EResource::WOOD]; --gResources[(int32)EResource::WOOD];
-		--Resources[(int32)EResource::BRICKS]; --gResources[(int32)EResource::BRICKS];
+		--Resources[(int32)EResource::WOOD]; --AGameManager::gResources[(int32)EResource::WOOD];
+		--Resources[(int32)EResource::BRICKS]; --AGameManager::gResources[(int32)EResource::BRICKS];
 		++roads;
 		canBuyRoadbool = false;
 		return true;
@@ -36,10 +35,10 @@ bool PlayerInventory::buyRoad() {
 bool PlayerInventory::buySettlement() {
 	if (!canBuySett()) { return false; }
 	if (Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOL] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
-		--Resources[(int32)EResource::WHEAT]; --gResources[(int32)EResource::WHEAT];
-		--Resources[(int32)EResource::WOOD];	--gResources[(int32)EResource::WOOD];
-		--Resources[(int32)EResource::WOOL];	--gResources[(int32)EResource::WOOL];
-		--Resources[(int32)EResource::BRICKS]; --gResources[(int32)EResource::BRICKS];
+		--Resources[(int32)EResource::WHEAT]; --AGameManager::gResources[(int32)EResource::WHEAT];
+		--Resources[(int32)EResource::WOOD];	--AGameManager::gResources[(int32)EResource::WOOD];
+		--Resources[(int32)EResource::WOOL];	--AGameManager::gResources[(int32)EResource::WOOL];
+		--Resources[(int32)EResource::BRICKS]; --AGameManager::gResources[(int32)EResource::BRICKS];
 		++settlements;
 		++victoryPoints;
 		canBuySettbool = false;
@@ -51,8 +50,8 @@ bool PlayerInventory::buySettlement() {
 bool PlayerInventory::upgradeSettlement() {
 	if (!canUpgrade()) { return false; }
 	if (Resources[(int32)EResource::WHEAT] >= 2 && Resources[(int32)EResource::ORE] >= 3) {
-		----Resources[(int32)EResource::WHEAT]; ----gResources[(int32)EResource::WHEAT];
-		------Resources[(int32)EResource::ORE]; ------gResources[(int32)EResource::ORE];
+		----Resources[(int32)EResource::WHEAT]; ----AGameManager::gResources[(int32)EResource::WHEAT];
+		------Resources[(int32)EResource::ORE]; ------AGameManager::gResources[(int32)EResource::ORE];
 		canUpgradebool = false;
 		return true;
 	}
@@ -68,13 +67,13 @@ bool PlayerInventory::upgradeSettlement() {
 void PlayerInventory::drawCard() {
 	if (!canDrawCardbool) { return; }
 	if (Resources[(int32)EResource::ORE] >=1 && Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::WOOL] >= 1) {
-		--Resources[(int32)EResource::ORE]; --gResources[(int32)EResource::ORE];
-		--Resources[(int32)EResource::WHEAT]; --gResources[(int32)EResource::WHEAT];
-		--Resources[(int32)EResource::WOOL]; --gResources[(int32)EResource::WOOL];
-		int32 randno = rand() % Gdeck->Num();
-		hand.Add((*Gdeck)[randno]);
-		unplayable = (*Gdeck)[randno];
-		Gdeck->RemoveAt(randno);
+		--Resources[(int32)EResource::ORE]; --AGameManager::gResources[(int32)EResource::ORE];
+		--Resources[(int32)EResource::WHEAT]; --AGameManager::gResources[(int32)EResource::WHEAT];
+		--Resources[(int32)EResource::WOOL]; --AGameManager::gResources[(int32)EResource::WOOL];
+		int32 randno = rand() % AGameManager::Gdeck.Num();
+		hand.Add((AGameManager::Gdeck)[randno]);
+		unplayable = (AGameManager::Gdeck)[randno];
+		AGameManager::Gdeck.RemoveAt(randno);
 		canDrawCardbool = false;
 	}
 	else { return; }
@@ -97,6 +96,11 @@ bool PlayerInventory::moreThanOne(ECards card){
 	return count>=2 ? true:false;
 }
 
+void PlayerInventory::addKnight() {
+	++knights;
+}
+
+
 #pragma endregion
 
 #pragma region Inventory Management
@@ -116,34 +120,15 @@ void PlayerInventory::removeHalf() {
 	for (int8 i = 0; i < totalRes / 2; ++i) { removeOneRand(); }
 }
 
-
-
 int32 PlayerInventory::total() { return Resources[0] + Resources[1] + Resources[2] + Resources[3] + Resources[4]; }
 
 void PlayerInventory::removeOneRand(){
 rereoll:
 	if (Resources[(int32)EResource::WHEAT] == 0 && Resources[(int32)EResource::BRICKS] == 0 && Resources[(int32)EResource::ORE] == 0 && Resources[(int32)EResource::WOOD] == 0 && Resources[(int32)EResource::WOOL] == 0) { return; }
 	int randomResource = rand() % 5;
-	if (randomResource == 0) {
-		if (Resources[(int32)EResource::BRICKS] == 0) { goto rereoll; }
-		--Resources[(int32)EResource::BRICKS]; --gResources[(int32)EResource::BRICKS];
-	}
-	if (randomResource == 1) {
-		if (Resources[(int32)EResource::WHEAT] == 0) { goto rereoll; }
-		--Resources[(int32)EResource::WHEAT]; --gResources[(int32)EResource::WHEAT];
-	}
-	if (randomResource == 2) {
-		if (Resources[(int32)EResource::ORE] == 0) { goto rereoll; }
-		--Resources[(int32)EResource::ORE]; --gResources[(int32)EResource::ORE];
-	}
-	if (randomResource == 3) {
-		if (Resources[(int32)EResource::WOOD] == 0) { goto rereoll; }
-		--Resources[(int32)EResource::WOOD]; --gResources[(int32)EResource::WOOD];
-	}
-	if (randomResource == 4) {
-		if (Resources[(int32)EResource::WOOL] == 0) { goto rereoll; }
-		--Resources[(int32)EResource::WOOL]; --gResources[(int32)EResource::WOOL];
-	}
+	if (Resources[randomResource] == 0) { goto rereoll; }
+	--Resources[randomResource]; 
+	--AGameManager::gResources[randomResource];
 }
 
 void PlayerInventory::resOut(){
@@ -160,6 +145,8 @@ void PlayerInventory::resOut(){
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, wheatout);
 	FString oreout = FString::Printf(TEXT("Ore           : %d"), Resources[(int32)EResource::ORE]);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Silver, oreout);
+	FString knightsstrinnf = FString::Printf(TEXT("Knights         : %d"), knights);
+	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Silver, knightsstrinnf);
 	FString playerout = FString::Printf(TEXT("Player         : %d"), (int32)this->player);
 	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, playerout);
 	FString null = FString::Printf(TEXT("                     "));
@@ -168,7 +155,7 @@ void PlayerInventory::resOut(){
 }
 
 bool PlayerInventory::addResource(EResource resource) {
-	if (*gResources[(int32)resource-1] <= 18) { ++Resources[(int32)resource - 1]; ++gResources[(int32)resource - 1]; return true; }
+	if (AGameManager::gResources[(int32)resource] <= 18) { ++Resources[(int32)resource]; ++AGameManager::gResources[(int32)resource]; return true; }
 	return false;
 }
 

@@ -2,23 +2,25 @@
 
 #include "ENUMS.h"
 #include "TimerManager.h"
-#include "CoreMinimal.h"
 #include "PlayerInventory.h"
+#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameManager.generated.h"
 
-class AHexTileSpawner;
 
 UCLASS()
 class THE_SETTLERS_API AGameManager : public AActor {
 	GENERATED_BODY()
-
 public:
+	inline static AGameManager* gameGlobal;
 	virtual void BeginPlay() override;
 	AGameManager();
+
 	//Global resources
-	TArray<int32> gResources = {20,20,20,20,20};
-	TArray<ECards> Gdeck;
+	inline static TArray<int32> gResources = {20,20,20,20,20};
+	inline static TArray<ECards> Gdeck;
+
+
 	TArray<PlayerInventory*> invs;
 	void refreshAll();
 	void stealAll();
@@ -26,12 +28,7 @@ public:
 	PlayerInventory* getPlayer(EPlayer player);
 	TArray<ECards> deckMaker(int knight, int vp, int monopoly, int yop, int roads);
 
-
-
-
-
 	//LOCKS
-	//Knigth lock not necessary, just needs to change the thief lock
 	inline static bool monopolyLock = false;
 	inline static bool yearOPlentyLock = false;
 	inline static bool thiefLock = false;
@@ -48,8 +45,9 @@ public:
 	FTimerHandle TurnTimerHandle;
 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn-Mechanics")
+	//debugging
 	int32 globalTurn;
+
 	void StartTurn();
 	void EndTurn();
 
@@ -57,31 +55,33 @@ public:
 	void SkipTurn();
 
 
-	inline static AGameManager* gameGlobal;
+
 
 
 	//BLUEPRINT INTEGRATION
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	FString getResourceHUD(EPlayer player, EResource resource);
-	//AUTO
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	void monopoly_AUTO();
+
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void yearOPlenty_AUTO();
+
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void freeRoads();
-	//MANUAL
+
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void monopoly(EResource resource);
-	/*UFUNCTION(BlueprintCallable, Category = "Function")
-	void yearOPlenty();*/
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	void knight();
+	EPlayer largestArmyPlayer = EPlayer::NONE;
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	void largestArmy();
 
 
 
 	//UFUNCTION(BlueprintCallable, Category = "Function")
 	//void monolopy(EPlayer player, EResource resource);
-
-
 
 	//UFUNCTION(BlueprintCallable, Category = "Function")
 	// ? getCardNumber(EPlayer, ECard/ just return a set) to connect to the hud and turn off the cards if they are 0 
