@@ -38,7 +38,7 @@ void AGameManager::StartTurn() {
 	if (AHexTileSpawner::hexManager->DiceRolled(dice1+dice2)) {
 		thiefLock = true;
 	}
-	resOut();
+	//resOut();
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 
 }
@@ -105,6 +105,7 @@ void AGameManager::monopoly(EResource resource) {
 		}
 		inv->Resources[(int32)resource] = 0;
 	}
+	monopolyLock = false;
 }
 
 void AGameManager::freeRoads() {
