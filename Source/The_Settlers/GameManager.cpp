@@ -98,13 +98,10 @@ void AGameManager::yearOPlenty_AUTO() {
 }
 
 void AGameManager::monopoly(EResource resource) {
-	getPlayer(CurrentPlayer)->Resources[(int32)resource] = gResources[(int32)resource];
 	for (PlayerInventory* inv : invs) {
-		if (inv->player == CurrentPlayer) {
-			continue;
-		}
 		inv->Resources[(int32)resource] = 0;
 	}
+	getPlayer(CurrentPlayer)->Resources[(int32)resource] = gResources[(int32)resource];
 	monopolyLock = false;
 }
 
@@ -162,6 +159,8 @@ void AGameManager::stealAll() { for (PlayerInventory* inv : invs) { inv->removeH
 #pragma region HUD
 
 FString AGameManager::getResourceHUD(EPlayer player, EResource resource) {
+	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::FromInt(getPlayer(player)->getResource(resource)));
+
 	return FString::FromInt(getPlayer(player)->getResource(resource));
 }
 
