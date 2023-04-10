@@ -43,6 +43,7 @@ public:
 	//inv management 
 	void removeHalf();
 	bool addResource(EResource resource);
+	bool removeResource(EResource resource);
 	int32 getResource(EResource resource);
 	//void stealResource(PlayerInventory p1, PlayerInventory p2, EResource resource);
 	void resOut();

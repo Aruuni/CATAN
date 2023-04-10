@@ -159,6 +159,12 @@ bool PlayerInventory::addResource(EResource resource) {
 	return false;
 }
 
+bool PlayerInventory::removeResource(EResource resource) {
+	if (Resources[(int32)resource] > 0) { --Resources[(int32)resource]; --AGameManager::gResources[(int32)resource]; return true; }
+	return false;
+}
+
+
 int32 PlayerInventory::getResource(EResource resource) {
 	return Resources[(int32)resource];
 }

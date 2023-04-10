@@ -57,9 +57,6 @@ void AGameManager::EndTurn() {
 
 	largestArmy();
 
-
-
-
 	//Next turn 
 	refreshAll();
 	int32 CurrentPlayerInt = (int32)CurrentPlayer;
@@ -150,6 +147,16 @@ TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop
 void AGameManager::refreshAll() { for (PlayerInventory* inv : invs) { inv->reset(); } }
 
 void AGameManager::stealAll() { for (PlayerInventory* inv : invs) { inv->removeHalf(); } }
+
+bool AGameManager::trade(EPlayer player1, EPlayer player2, EResource resource1, EResource resource2) {
+	if (getPlayer(player1)->getResource(resource1) > 0) {
+		getPlayer(player1)->removeResource(resource1);
+		getPlayer(player2)->addResource(resource2);
+		return true;
+	}
+	return false;
+
+}
 
 
 #pragma endregion

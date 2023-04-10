@@ -41,7 +41,7 @@ public:
 
 	// Turn duration in seconds
 	//cvhange manually in the player inventories res out bc for some reason you cant have a static float???
-	float TurnDuration = 5.f;
+	float TurnDuration = 10000.f;
 	FTimerHandle TurnTimerHandle;
 
 	
@@ -54,6 +54,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void SkipTurn();
 
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool trade(EPlayer player1, EPlayer player2, EResource resource, EResource resource2);
+
+	
 
 
 
