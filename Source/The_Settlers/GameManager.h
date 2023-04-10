@@ -17,7 +17,7 @@ public:
 	AGameManager();
 
 	//Global resources
-	inline static TArray<int32> gResources = {20,20,20,20,20};
+	inline static TArray<int32> gResources = {5,5,5,5,5};
 	inline static TArray<ECards> Gdeck;
 
 
@@ -32,16 +32,21 @@ public:
 	inline static bool monopolyLock = false;
 	inline static bool yearOPlentyLock = false;
 	inline static bool thiefLock = false;
+	inline static bool freeRoadsLock = false;
+	inline static int freeRoadsCount = 0;
 
 	//Turn Mechanics
 	inline static EPlayer CurrentPlayer;
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	EPlayer getCurrentPlayer();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	ECards cardInPlay;
 
 
 	// Turn duration in seconds
 	//cvhange manually in the player inventories res out bc for some reason you cant have a static float???
-	float TurnDuration = 10000.f;
+	float TurnDuration = 1000.f;
 	FTimerHandle TurnTimerHandle;
 
 	
@@ -57,10 +62,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool trade(EPlayer player1, EPlayer player2, EResource resource, EResource resource2);
 
-	
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getCardCount(EPlayer player, ECards cardC);
 
-
-
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool useCard(EPlayer player, ECards card);
 
 	//BLUEPRINT INTEGRATION
 	UFUNCTION(BlueprintCallable, Category = "Function")
@@ -70,13 +76,20 @@ public:
 	void yearOPlenty_AUTO();
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void freeRoads();
+	bool freeRoads(EPlayer player);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void monopoly(EResource resource);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void knight();
+	bool knight(EPlayer player);
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool victoryPoint(EPlayer player);
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool addResource(EPlayer player, EResource resource);
+
 	EPlayer largestArmyPlayer = EPlayer::NONE;
 
 	UFUNCTION(BlueprintCallable, Category = "Function")

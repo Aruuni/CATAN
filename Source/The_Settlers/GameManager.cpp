@@ -9,10 +9,8 @@ AGameManager::AGameManager() {
 	CurrentPlayer = EPlayer::PLAYER1;
 	gameGlobal = this;
 	Gdeck = deckMaker(14, 6, 2, 2, 1);
-	bool test = false;
 	for (int8 i = 0; i < 4; ++i) {
 		invs.Add(new PlayerInventory((EPlayer)(i + 1)));
-		if (!test) { invs[i]->addKnight(); }
 	}
 }
 // Called when the game starts or when spawned
@@ -54,6 +52,7 @@ void AGameManager::EndTurn() {
 	if (yearOPlentyLock) { yearOPlenty_AUTO(); }
 	yearOPlentyLock = false;
 
+	if (freeRoadsLock) { freeRoadsCount = 0; freeRoadsLock = false; }
 
 	largestArmy();
 
@@ -72,6 +71,10 @@ void AGameManager::EndTurn() {
 void AGameManager::SkipTurn() {
 	GetWorldTimerManager().ClearTimer(TurnTimerHandle);
 	EndTurn();
+}
+
+EPlayer AGameManager::getCurrentPlayer() {
+	return CurrentPlayer;
 }
 
 #pragma endregion
@@ -102,14 +105,31 @@ void AGameManager::monopoly(EResource resource) {
 	monopolyLock = false;
 }
 
-void AGameManager::freeRoads() {
-
+bool AGameManager::freeRoads(EPlayer player) {
+	if (getPlayer(player)->useCard(ECards::FREEROAD)) {
+		freeRoadsLock = true;
+		return true;
+	}
+	return false;
 }
 
-void AGameManager::knight() {
-	getPlayer(CurrentPlayer)->addKnight();
-	thiefLock = true;
+bool AGameManager::knight(EPlayer player) {
+	if (getPlayer(player)->useCard(ECards::KNIGHT)) {
+		getPlayer(CurrentPlayer)->addKnight();
+		thiefLock = true;
+		return true;
+	}
+	return false;
 }
+
+bool AGameManager::victoryPoint(EPlayer player) {
+	if (getPlayer(player)->useCard(ECards::VICTORYPOINT)) {
+		getPlayer(player)->victoryPoints++;
+		return true;
+	}
+	return false;
+}
+
 void AGameManager::largestArmy() {
 	EPlayer playerVP = EPlayer::NONE;
 	int largest = 0;
@@ -139,6 +159,14 @@ TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop
 	return deck;
 }
 
+bool AGameManager::useCard(EPlayer player, ECards card) {
+	return getPlayer(player)->useCard(card);
+}
+
+int32 AGameManager::getCardCount(EPlayer player, ECards card) {
+	return getPlayer(player)->getCardCount(card);
+}
+
 #pragma endregion
 
 #pragma region Inventory Management
@@ -158,10 +186,11 @@ bool AGameManager::trade(EPlayer player1, EPlayer player2, EResource resource1, 
 
 }
 
+bool AGameManager::addResource(EPlayer player, EResource resource) {
+	return getPlayer(player)->addResource(resource);
+}
 
 #pragma endregion
-
-
 
 #pragma region HUD
 

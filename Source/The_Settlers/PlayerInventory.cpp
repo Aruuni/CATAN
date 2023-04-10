@@ -4,10 +4,9 @@
 
 PlayerInventory::PlayerInventory(EPlayer player) {
 	this->player = player;
-	this->Resources = {5,5,5,5,5};
+	this->Resources = {1,1,1,1,1};
 }
 
-#pragma region Building
 
 #pragma region BORING GETTERS
 
@@ -60,9 +59,18 @@ bool PlayerInventory::upgradeSettlement() {
 
 #pragma endregion
 
-#pragma endregion
 
 #pragma region Cards
+
+int32 PlayerInventory::getCardCount(ECards cardC) {
+	int32 count = 0;
+	for (ECards card : hand) {
+		if (card == cardC) {
+			++count;
+		}
+	}
+	return count;
+}
 
 void PlayerInventory::drawCard() {
 	if (!canDrawCardbool) { return; }
@@ -98,6 +106,10 @@ bool PlayerInventory::moreThanOne(ECards card){
 
 void PlayerInventory::addKnight() {
 	++knights;
+}
+
+void PlayerInventory::addVictoryPoint() {
+	++victoryPoints;
 }
 
 

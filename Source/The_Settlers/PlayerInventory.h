@@ -37,15 +37,16 @@ public:
 	bool upgradeSettlement();
 	void reset();
 	//cards management 
+	int32 getCardCount(ECards cardC);
 	void drawCard();
 	bool useCard(ECards card);
 	void addKnight();
 	//inv management 
 	void removeHalf();
+	void addVictoryPoint();
 	bool addResource(EResource resource);
 	bool removeResource(EResource resource);
 	int32 getResource(EResource resource);
-	//void stealResource(PlayerInventory p1, PlayerInventory p2, EResource resource);
 	void resOut();
 private:
 	bool moreThanOne(ECards card);
