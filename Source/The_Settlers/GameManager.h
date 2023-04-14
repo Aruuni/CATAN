@@ -24,6 +24,7 @@ public:
 	TArray<PlayerInventory*> invs;
 	void refreshAll();
 	void stealAll();
+	UFUNCTION(BlueprintCallable, Category = "Function")
 	void resOut();
 	PlayerInventory* getPlayer(EPlayer player);
 	TArray<ECards> deckMaker(int knight, int vp, int monopoly, int yop, int roads);
@@ -68,7 +69,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool useCard(EPlayer player, ECards card);
 
-	//BLUEPRINT INTEGRATION
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool drawCard();
+
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	FString getResourceHUD(EPlayer player, EResource resource);
 
@@ -95,12 +98,5 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void largestArmy();
 
-
-
-	//UFUNCTION(BlueprintCallable, Category = "Function")
-	//void monolopy(EPlayer player, EResource resource);
-
-	//UFUNCTION(BlueprintCallable, Category = "Function")
-	// ? getCardNumber(EPlayer, ECard/ just return a set) to connect to the hud and turn off the cards if they are 0 
 	
 };

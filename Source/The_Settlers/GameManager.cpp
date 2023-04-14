@@ -21,17 +21,14 @@ void AGameManager::BeginPlay() {
 #pragma region Turn Mechanics 
 
 void AGameManager::StartTurn() {
-	FString turn = FString::Printf(TEXT("Turn : %d"), globalTurn);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, turn);
-	FString message = FString::Printf(TEXT("Turn of player: %d"), (int32)CurrentPlayer);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, message);
+	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, FString::Printf(TEXT("Turn : %d"), globalTurn));
+	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, FString::Printf(TEXT("Turn of player: %d"), (int32)CurrentPlayer));
 
 
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
 
-	FString roll2 = FString::Printf(TEXT("Dice  rolls:    %d"), dice2 + dice1);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, roll2);
+	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Dice  rolls:    %d"), dice2 + dice1));
 
 	if (AHexTileSpawner::hexManager->DiceRolled(dice1+dice2)) {
 		thiefLock = true;
@@ -135,7 +132,6 @@ void AGameManager::largestArmy() {
 	int largest = 0;
 	for (PlayerInventory* inv : invs) {
 		if (inv->knights > largest) {
-			//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("swapped")));
 			largest = inv->knights;
 			playerVP = inv->player;
 		}
@@ -178,12 +174,16 @@ void AGameManager::stealAll() { for (PlayerInventory* inv : invs) { inv->removeH
 
 bool AGameManager::trade(EPlayer player1, EPlayer player2, EResource resource1, EResource resource2) {
 	if (getPlayer(player1)->getResource(resource1) > 0) {
-		getPlayer(player1)->removeResource(resource1);
+		getPlayer(player1)->addResource(resource1);
+		getPlayer(player1)->removeResource(resource2);
 		getPlayer(player2)->addResource(resource2);
+		getPlayer(player2)->removeResource(resource1);
 		return true;
 	}
 	return false;
-
+}
+bool AGameManager::drawCard() {
+	return getPlayer(CurrentPlayer)->drawCard();
 }
 
 bool AGameManager::addResource(EPlayer player, EResource resource) {

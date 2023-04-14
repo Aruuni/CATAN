@@ -72,9 +72,8 @@ int32 PlayerInventory::getCardCount(ECards cardC) {
 	return count;
 }
 
-void PlayerInventory::drawCard() {
-	if (!canDrawCardbool) { return; }
-	if (Resources[(int32)EResource::ORE] >=1 && Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::WOOL] >= 1) {
+bool PlayerInventory::drawCard() {
+	if (canDrawCardbool && (Resources[(int32)EResource::ORE] >= 1 && Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::WOOL] >= 1)) {
 		--Resources[(int32)EResource::ORE]; --AGameManager::gResources[(int32)EResource::ORE];
 		--Resources[(int32)EResource::WHEAT]; --AGameManager::gResources[(int32)EResource::WHEAT];
 		--Resources[(int32)EResource::WOOL]; --AGameManager::gResources[(int32)EResource::WOOL];
@@ -83,8 +82,9 @@ void PlayerInventory::drawCard() {
 		unplayable = (AGameManager::Gdeck)[randno];
 		AGameManager::Gdeck.RemoveAt(randno);
 		canDrawCardbool = false;
+		return true;
 	}
-	else { return; }
+	 return false; 
 }
 
 bool PlayerInventory::useCard(ECards card) {
@@ -181,15 +181,6 @@ int32 PlayerInventory::getResource(EResource resource) {
 	return Resources[(int32)resource];
 }
 
-
-//void PlayerInventory::stealResource(PlayerInventory p1, PlayerInventory p2, EResource resource) {
-//	p1.addResource(resource);
-//	if (resource == EResource::WHEAT) { --p2.wheat; }
-//	if (resource == EResource::BRICKS) { --p2.bricks; }
-//	if (resource == EResource::ORE) { --p2.ore; }
-//	if (resource == EResource::WOOL) { --p2.wool; }
-//	if (resource == EResource::WOOD) { --p2.wood; }
-//}
 #pragma endregion
 
 

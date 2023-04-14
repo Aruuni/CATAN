@@ -38,7 +38,7 @@ public:
 	void reset();
 	//cards management 
 	int32 getCardCount(ECards cardC);
-	void drawCard();
+	bool drawCard();
 	bool useCard(ECards card);
 	void addKnight();
 	//inv management 
