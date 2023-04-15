@@ -173,7 +173,7 @@ void AGameManager::refreshAll() { for (PlayerInventory* inv : invs) { inv->reset
 void AGameManager::stealAll() { for (PlayerInventory* inv : invs) { inv->removeHalf(); } }
 
 bool AGameManager::trade(EPlayer player1, EPlayer player2, EResource resource1, EResource resource2) {
-	if (getPlayer(player1)->getResource(resource1) > 0) {
+	if (getPlayer(player1)->getResource(resource2) > 0 && getPlayer(player2)->getResource(resource1) > 0) {
 		getPlayer(player1)->addResource(resource1);
 		getPlayer(player1)->removeResource(resource2);
 		getPlayer(player2)->addResource(resource2);
