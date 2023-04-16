@@ -18,12 +18,12 @@ public:
 	EPlayer playerOwner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ROAD")
-	TSubclassOf<ABuilding> Road;
+	TArray<TSubclassOf<ABuilding>> roads;
 	ARoad();
 
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void RoadBuyer(EPlayer player);
+	bool RoadBuyer(EPlayer player);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool RoadDetector(EPlayer player);

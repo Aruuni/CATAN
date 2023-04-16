@@ -23,9 +23,7 @@ public:
 
 	TArray<PlayerInventory*> invs;
 	void refreshAll();
-	void stealAll();
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	void resOut();
+	void stealAll();	
 	PlayerInventory* getPlayer(EPlayer player);
 	TArray<ECards> deckMaker(int knight, int vp, int monopoly, int yop, int roads);
 
@@ -35,9 +33,11 @@ public:
 	inline static bool thiefLock = false;
 	inline static bool freeRoadsLock = false;
 	inline static int freeRoadsCount = 0;
-
-	//Turn Mechanics
 	inline static EPlayer CurrentPlayer;
+	EPlayer largestArmyPlayer = EPlayer::NONE;
+	EPlayer longestRoadPlayer = EPlayer::NONE;
+
+	
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	EPlayer getCurrentPlayer();
 
@@ -47,15 +47,18 @@ public:
 
 	// Turn duration in seconds
 	//cvhange manually in the player inventories res out bc for some reason you cant have a static float???
-	float TurnDuration = 1000.f;
+	float TurnDuration = 10.f;
 	FTimerHandle TurnTimerHandle;
 
 	
 	//debugging
-	int32 globalTurn;
-
+	int32 globalTurn = 1;
+	int32 dice;
 	void StartTurn();
 	void EndTurn();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getDice();
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void SkipTurn();
@@ -65,6 +68,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	int32 getCardCount(EPlayer player, ECards cardC);
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 knightCount(EPlayer player);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool useCard(EPlayer player, ECards card);
@@ -93,10 +99,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool addResource(EPlayer player, EResource resource);
 
-	EPlayer largestArmyPlayer = EPlayer::NONE;
-
-	UFUNCTION(BlueprintCallable, Category = "Function")
 	void largestArmy();
 
-	
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getLargestArmyPlayer();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getLongestRoadPlayer();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getPlayerTurn();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getTurnNumber();
 };

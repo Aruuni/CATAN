@@ -21,19 +21,13 @@ void AGameManager::BeginPlay() {
 #pragma region Turn Mechanics 
 
 void AGameManager::StartTurn() {
-	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, FString::Printf(TEXT("Turn : %d"), globalTurn));
-	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, FString::Printf(TEXT("Turn of player: %d"), (int32)CurrentPlayer));
-
-
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
-
-	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Dice  rolls:    %d"), dice2 + dice1));
 
 	if (AHexTileSpawner::hexManager->DiceRolled(dice1+dice2)) {
 		thiefLock = true;
 	}
-	//resOut();
+	dice = dice1 + dice2;
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 
 }
@@ -57,12 +51,16 @@ void AGameManager::EndTurn() {
 	refreshAll();
 	int32 CurrentPlayerInt = (int32)CurrentPlayer;
 	CurrentPlayerInt++;
-	if (CurrentPlayerInt >= (int32)EPlayer::PLAYER4) {
+	if (CurrentPlayerInt > (int32)EPlayer::PLAYER4) {
 		CurrentPlayerInt = 1;
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
 	globalTurn++;
 	StartTurn();
+}
+
+int32 AGameManager::getDice() {
+	return dice;
 }
 
 void AGameManager::SkipTurn() {
@@ -140,7 +138,23 @@ void AGameManager::largestArmy() {
 		if (largestArmyPlayer != EPlayer::NONE) { ----getPlayer(largestArmyPlayer)->victoryPoints; }
 		++++getPlayer(playerVP)->victoryPoints;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Player with largest army:    %d"), (int32)playerVP));
+	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Player with largest army:    %d"), (int32)playerVP));
+}
+
+int32 AGameManager::getLargestArmyPlayer() {
+	return (int32)largestArmyPlayer;
+}
+
+int32 AGameManager::getLongestRoadPlayer() {
+	return (int32)longestRoadPlayer;
+}
+
+int32 AGameManager::getPlayerTurn() {
+	return (int32)getCurrentPlayer();
+}
+
+int32 AGameManager::getTurnNumber() {
+	return globalTurn;
 }
 
 TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop, int roads) {
@@ -200,10 +214,9 @@ FString AGameManager::getResourceHUD(EPlayer player, EResource resource) {
 	return FString::FromInt(getPlayer(player)->getResource(resource));
 }
 
-void AGameManager::resOut() {
-	for (PlayerInventory* pinv : invs) {
-		pinv->resOut();
-	}
+int32 AGameManager::knightCount(EPlayer player) {
+	return getPlayer(player)->getKnights();
 }
+
 
 #pragma endregion 

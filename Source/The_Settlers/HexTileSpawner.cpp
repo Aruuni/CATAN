@@ -48,7 +48,5 @@ bool AHexTileSpawner::DiceRolled(int32 dice) {
 		}
 		return false;
 	}
-	FString null = FString::Printf(TEXT("Place Thief"));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, null);
 	return true;
 }

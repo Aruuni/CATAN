@@ -27,9 +27,11 @@ public:
 	EPlayer playerOwner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-1")
-	TSubclassOf<ABuilding> Level1;
+	TArray<TSubclassOf<ABuilding>> Level1;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-2")
-	TSubclassOf<ABuilding> Level2;
+	TArray<TSubclassOf<ABuilding>> Level2;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-2")
 	ABuilding* building;
 
@@ -37,10 +39,10 @@ public:
 	void AddResource(EResource type);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void SettlementBuyer(EPlayer player);
+	bool SettlementBuyer(EPlayer player);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void Upgrade();
+	bool Upgrade(EPlayer player);
 
 	ASettlement();
 
@@ -48,9 +50,10 @@ public:
 
 
 	void settlementLock(EPlayer player);
+
 	bool roadAdjacency(EPlayer player);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-
+	bool boughtChecker();
 	virtual void BeginPlay() override;
 };

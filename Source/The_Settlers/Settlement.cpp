@@ -11,48 +11,42 @@ void  ASettlement::BeginPlay() {
     Super::BeginPlay();
 }
 
-void ASettlement::SettlementBuyer(EPlayer player) {
-    if (locked || bought) { return; }
-    //if (game->CurrentPlayer != player) { return; }
-    PlayerInventory* inv = AGameManager::gameGlobal->getPlayer(player);
-    if (inv->canBuySett()) {
-        if (AGameManager::gameGlobal->globalTurn < 9) {
-            ABuilding* spawnedBuilding = GetWorld()->SpawnActor<ABuilding>(Level1, GetActorLocation(), FRotator::ZeroRotator);
-            building = spawnedBuilding;
-            bought = true;
-            playerOwner = player;
-            ++inv->settlements;
-            settlementLock(player);
-        }
-        else {
-            if (this->roadAdjacency(player)) {
-                if (inv->buySettlement()) {
-                    ABuilding* spawnedBuilding = GetWorld()->SpawnActor<ABuilding>(Level1, GetActorLocation(), FRotator::ZeroRotator);
-                    building = spawnedBuilding;
-                    bought = true;
-                    playerOwner = player;
-                    settlementLock(player);
-                }
-            }
-        }
+bool ASettlement::SettlementBuyer(EPlayer player) {
+    if (locked || bought) { return false; }
+    //if (AGameManager::gameGlobal->CurrentPlayer != player) { return false; }
+    if (AGameManager::gameGlobal->getPlayer(player)->buySettlement(AGameManager::gameGlobal->globalTurn < 9) || (roadAdjacency(player) && AGameManager::gameGlobal->getPlayer(player)->buySettlement(AGameManager::gameGlobal->globalTurn < 9))) {
+        building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)player - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
+        bought = true;
+        playerOwner = player;
+        settlementLock(player);
+        return true;
     }
+        
+    
+    return false;
 }
-//NOT DONE
-void ASettlement::Upgrade() {
+bool ASettlement::boughtChecker() {
+	return bought;
+}
+//NOT DONE needs validation
+bool ASettlement::Upgrade(EPlayer player) {
+    //if (AGameManager::gameGlobal->CurrentPlayer != player) { return false; }
     if (!upgraded && bought) {
-        FVector currentActorLocation = building->GetActorLocation();
-        building->Destroy();
-        ABuilding* spawnedBuilding = GetWorld()->SpawnActor<ABuilding>(Level2, FVector(currentActorLocation.X, currentActorLocation.Y, 100), FRotator::ZeroRotator);
-        building = spawnedBuilding;
-        upgraded = true;
+        if (AGameManager::gameGlobal->getPlayer(player)->upgradeSettlement()) {
+            FVector currentActorLocation = building->GetActorLocation();
+            building->Destroy();
+            building = GetWorld()->SpawnActor<ABuilding>(Level2[(int32)player - 1], FVector(currentActorLocation.X, currentActorLocation.Y, 100), FRotator(0.0f, rand() % 5 * 60, 0.0f));
+            upgraded = true;
+            return true;
+        }
     }
+    return false;
 }
 
 void ASettlement::AddResource(EResource type) {
     if (playerOwner == EPlayer::NONE) { return; } 
-    PlayerInventory* inv = AGameManager::gameGlobal->getPlayer(playerOwner);
-    inv->addResource(type);
-    if (upgraded) { inv->addResource(type); }
+    AGameManager::gameGlobal->getPlayer(playerOwner)->addResource(type);
+    if (upgraded) { AGameManager::gameGlobal->getPlayer(playerOwner)->addResource(type); }
 }
 
 void ASettlement::stealResource(EPlayer stealer) {
@@ -62,9 +56,8 @@ void ASettlement::stealResource(EPlayer stealer) {
 }
 
 void ASettlement::settlementLock(EPlayer player) {
-    UWorld* world = GetWorld();
     TArray<AActor*> foundActors;
-    UGameplayStatics::GetAllActorsOfClass(world, ASettlement::StaticClass(), foundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
     for (AActor* Actor : foundActors) {
         if (Actor == this) { continue; }
         if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 750.0f) {
@@ -75,9 +68,8 @@ void ASettlement::settlementLock(EPlayer player) {
 }
 
 bool ASettlement::roadAdjacency(EPlayer player) {
-    UWorld* world = GetWorld();
     TArray<AActor*> foundActors;
-    UGameplayStatics::GetAllActorsOfClass(world, ARoad::StaticClass(), foundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARoad::StaticClass(), foundActors);
     for (AActor* Actor : foundActors) {
         if (Actor == this) { continue; }
         if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 750.0f) {

@@ -12,28 +12,32 @@ PlayerInventory::PlayerInventory(EPlayer player) {
 
 bool PlayerInventory::canBuyRoad() { return canBuyRoadbool && roads <=15; }
 bool PlayerInventory::canBuySett() { return canBuySettbool && settlements<=5; }
-// do later TODO
-bool PlayerInventory::canUpgrade() { return canUpgradebool ; }
+bool PlayerInventory::canUpgrade() { return canUpgradebool && cities <=5; }
 
 #pragma endregion
 
 #pragma region BuyMethods
 
 bool PlayerInventory::buyRoad() {
-	if (!canBuyRoad()) { return false; }
-	if (Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
+	if (canBuyRoad() && Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
 		--Resources[(int32)EResource::WOOD]; --AGameManager::gResources[(int32)EResource::WOOD];
 		--Resources[(int32)EResource::BRICKS]; --AGameManager::gResources[(int32)EResource::BRICKS];
 		++roads;
 		canBuyRoadbool = false;
 		return true;
 	}
-	else { return false; }
+	return false; 
 }
 
-bool PlayerInventory::buySettlement() {
+bool PlayerInventory::buySettlement(bool free) {
 	if (!canBuySett()) { return false; }
-	if (Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOL] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
+	if (free) {
+		++settlements;
+		++victoryPoints;
+		canBuySettbool = false;
+		return true;
+	}
+	else if (Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOL] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
 		--Resources[(int32)EResource::WHEAT]; --AGameManager::gResources[(int32)EResource::WHEAT];
 		--Resources[(int32)EResource::WOOD];	--AGameManager::gResources[(int32)EResource::WOOD];
 		--Resources[(int32)EResource::WOOL];	--AGameManager::gResources[(int32)EResource::WOOL];
@@ -47,20 +51,25 @@ bool PlayerInventory::buySettlement() {
 }
 
 bool PlayerInventory::upgradeSettlement() {
-	if (!canUpgrade()) { return false; }
-	if (Resources[(int32)EResource::WHEAT] >= 2 && Resources[(int32)EResource::ORE] >= 3) {
+	if (true || canUpgrade() && (Resources[(int32)EResource::WHEAT] >= 2 && Resources[(int32)EResource::ORE] >= 3)) {
 		----Resources[(int32)EResource::WHEAT]; ----AGameManager::gResources[(int32)EResource::WHEAT];
 		------Resources[(int32)EResource::ORE]; ------AGameManager::gResources[(int32)EResource::ORE];
+		--settlements;
+		++cities;
+		++victoryPoints;
 		canUpgradebool = false;
 		return true;
 	}
-	else { return false; }
+	return false;
 }
 
 #pragma endregion
 
-
 #pragma region Cards
+
+int32 PlayerInventory::getKnights() {
+	return knights;
+}
 
 int32 PlayerInventory::getCardCount(ECards cardC) {
 	int32 count = 0;
@@ -141,29 +150,6 @@ rereoll:
 	if (Resources[randomResource] == 0) { goto rereoll; }
 	--Resources[randomResource]; 
 	--AGameManager::gResources[randomResource];
-}
-
-void PlayerInventory::resOut(){
-	float TurnDuration = 5.f;
-	FString null2 = FString::Printf(TEXT("                     "));
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, null2);
-	FString bricksout = FString::Printf(TEXT("Bricks     : %d"), Resources[(int32)EResource::BRICKS]);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Orange, bricksout);
-	FString woolout = FString::Printf(TEXT("Wool         : %d"), Resources[(int32)EResource::WOOL]);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::White, woolout);
-	FString woodout = FString::Printf(TEXT("Wood         : %d"), Resources[(int32)EResource::WOOD]);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Red, woodout);
-	FString wheatout = FString::Printf(TEXT("Wheat       : %d"), Resources[(int32)EResource::WHEAT]);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Yellow, wheatout);
-	FString oreout = FString::Printf(TEXT("Ore           : %d"), Resources[(int32)EResource::ORE]);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Silver, oreout);
-	FString knightsstrinnf = FString::Printf(TEXT("Knights         : %d"), knights);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Silver, knightsstrinnf);
-	FString playerout = FString::Printf(TEXT("Player         : %d"), (int32)this->player);
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, playerout);
-	FString null = FString::Printf(TEXT("                     "));
-	GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, null);
-	
 }
 
 bool PlayerInventory::addResource(EResource resource) {
