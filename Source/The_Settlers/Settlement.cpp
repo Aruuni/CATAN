@@ -14,17 +14,26 @@ void  ASettlement::BeginPlay() {
 bool ASettlement::SettlementBuyer(EPlayer player) {
     if (locked || bought) { return false; }
     //if (AGameManager::gameGlobal->CurrentPlayer != player) { return false; }
-    if (AGameManager::gameGlobal->getPlayer(player)->buySettlement(AGameManager::gameGlobal->globalTurn < 9) || (roadAdjacency(player) && AGameManager::gameGlobal->getPlayer(player)->buySettlement(AGameManager::gameGlobal->globalTurn < 9))) {
-        building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)player - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
+    if (AGameManager::gameGlobal->globalTurn < 9) {
+        if (AGameManager::gameGlobal->getPlayer(AGameManager::CurrentPlayer)->buySettlement(true)) {
+            building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
+            bought = true;
+            playerOwner = AGameManager::CurrentPlayer;
+            settlementLock(player);
+            return true;
+        }
+        return false;
+    }
+    else if (roadAdjacency(AGameManager::CurrentPlayer) && AGameManager::gameGlobal->getPlayer(AGameManager::CurrentPlayer)->buySettlement(false)){
+        building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
         bought = true;
-        playerOwner = player;
+        playerOwner = AGameManager::CurrentPlayer;
         settlementLock(player);
         return true;
     }
-        
-    
     return false;
 }
+
 bool ASettlement::boughtChecker() {
 	return bought;
 }
@@ -32,10 +41,10 @@ bool ASettlement::boughtChecker() {
 bool ASettlement::Upgrade(EPlayer player) {
     //if (AGameManager::gameGlobal->CurrentPlayer != player) { return false; }
     if (!upgraded && bought) {
-        if (AGameManager::gameGlobal->getPlayer(player)->upgradeSettlement()) {
+        if (AGameManager::gameGlobal->getPlayer(AGameManager::CurrentPlayer)->upgradeSettlement() && playerOwner == AGameManager::CurrentPlayer) {
             FVector currentActorLocation = building->GetActorLocation();
             building->Destroy();
-            building = GetWorld()->SpawnActor<ABuilding>(Level2[(int32)player - 1], FVector(currentActorLocation.X, currentActorLocation.Y, 100), FRotator(0.0f, rand() % 5 * 60, 0.0f));
+            building = GetWorld()->SpawnActor<ABuilding>(Level2[(int32)AGameManager::CurrentPlayer - 1], FVector(currentActorLocation.X, currentActorLocation.Y, 100), FRotator(0.0f, rand() % 5 * 60, 0.0f));
             upgraded = true;
             return true;
         }

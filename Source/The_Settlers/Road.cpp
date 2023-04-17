@@ -8,29 +8,27 @@ ARoad::ARoad() {}
 bool ARoad::RoadBuyer(EPlayer player) {
 	if (bought) { return false; }
 	//if (game->CurrentPlayer != player) { return false; }
-	if (AGameManager::gameGlobal->getPlayer(player)->canBuyRoad()) {
-		if (RoadDetector(player) || SettlementDetector(player)) {
-			if (AGameManager::gameGlobal->globalTurn < 9) {
-				ABuilding* spawnedBuilding = GetWorld()->SpawnActor<ABuilding>(roads[(int32)AGameManager::gameGlobal->getCurrentPlayer()-1], GetActorLocation(), GetActorRotation());
-				bought = true;
-				playerOwner = player;
-				++AGameManager::gameGlobal->getPlayer(player)->roads;
-				return true;
-			}
-			else {
-				if (AGameManager::gameGlobal->getPlayer(player)->buyRoad()) {
-					ABuilding* spawnedBuilding = GetWorld()->SpawnActor<ABuilding>(roads[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), GetActorRotation());
-					bought = true;
-					playerOwner = player;
-					return true;
-				}
-			}
+	if (AGameManager::gameGlobal->globalTurn < 9) {
+		if (roadAdjacency(AGameManager::CurrentPlayer) || (settlementAdjacency(AGameManager::CurrentPlayer)) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(AGameManager::gameGlobal->globalTurn < 9)) {
+			GetWorld()->SpawnActor<ABuilding>(roads[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), GetActorRotation());
+			bought = true;
+			playerOwner = AGameManager::CurrentPlayer;
+			return true;
+		}
+		return false;
+	}
+	else if (roadAdjacency(AGameManager::CurrentPlayer) || settlementAdjacency(AGameManager::CurrentPlayer)) {
+		if (AGameManager::gameGlobal->getPlayer(player)->buyRoad(false)) {
+			GetWorld()->SpawnActor<ABuilding>(roads[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), GetActorRotation());
+			bought = true;
+			playerOwner = AGameManager::CurrentPlayer;
+			return true;
 		}
 	}
 	return false;
 }
 
-bool ARoad::RoadDetector(EPlayer player) {
+bool ARoad::roadAdjacency(EPlayer player) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARoad::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {
@@ -43,7 +41,7 @@ bool ARoad::RoadDetector(EPlayer player) {
 	return false;
 }
 
-bool ARoad::SettlementDetector(EPlayer player) {
+bool ARoad::settlementAdjacency(EPlayer player) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {

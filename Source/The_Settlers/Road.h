@@ -25,9 +25,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool RoadBuyer(EPlayer player);
 
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	bool RoadDetector(EPlayer player);
-
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	bool SettlementDetector(EPlayer player);
+	bool roadAdjacency(EPlayer player);
+	bool settlementAdjacency(EPlayer player);
 };

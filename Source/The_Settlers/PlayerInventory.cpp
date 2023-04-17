@@ -4,7 +4,7 @@
 
 PlayerInventory::PlayerInventory(EPlayer player) {
 	this->player = player;
-	this->Resources = {1,1,1,1,1};
+	this->Resources = {2,2,2,2,2};
 }
 
 
@@ -18,8 +18,14 @@ bool PlayerInventory::canUpgrade() { return canUpgradebool && cities <=5; }
 
 #pragma region BuyMethods
 
-bool PlayerInventory::buyRoad() {
-	if (canBuyRoad() && Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
+bool PlayerInventory::buyRoad(bool free) {
+	if (!canBuyRoad()) { return false; }
+	if (free) {
+		++roads;
+		canBuyRoadbool = false;
+		return true;
+	}
+	else if (Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
 		--Resources[(int32)EResource::WOOD]; --AGameManager::gResources[(int32)EResource::WOOD];
 		--Resources[(int32)EResource::BRICKS]; --AGameManager::gResources[(int32)EResource::BRICKS];
 		++roads;
@@ -39,8 +45,8 @@ bool PlayerInventory::buySettlement(bool free) {
 	}
 	else if (Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOL] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
 		--Resources[(int32)EResource::WHEAT]; --AGameManager::gResources[(int32)EResource::WHEAT];
-		--Resources[(int32)EResource::WOOD];	--AGameManager::gResources[(int32)EResource::WOOD];
-		--Resources[(int32)EResource::WOOL];	--AGameManager::gResources[(int32)EResource::WOOL];
+		--Resources[(int32)EResource::WOOD];  --AGameManager::gResources[(int32)EResource::WOOD];
+		--Resources[(int32)EResource::WOOL];  --AGameManager::gResources[(int32)EResource::WOOL];
 		--Resources[(int32)EResource::BRICKS]; --AGameManager::gResources[(int32)EResource::BRICKS];
 		++settlements;
 		++victoryPoints;
@@ -79,6 +85,10 @@ int32 PlayerInventory::getCardCount(ECards cardC) {
 		}
 	}
 	return count;
+}
+
+int32 PlayerInventory::getVP() {
+	return victoryPoints;
 }
 
 bool PlayerInventory::drawCard() {

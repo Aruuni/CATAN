@@ -30,3 +30,17 @@ bool AHexTile::checkThiefLock() {
 	return AGameManager::thiefLock;
 }
 
+bool AHexTile::checkMySettlementAdjacency(EPlayer player) {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
+	for (AActor* Actor : foundActors) {
+		if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 1000.0f) {
+			ASettlement* Sett = Cast<ASettlement>(Actor);
+			if (Sett->playerOwner == player) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+

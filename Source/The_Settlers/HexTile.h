@@ -34,10 +34,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
 	UStaticMeshComponent* TileMesh;
+
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	EPlayer getCurrentPlayer();
+
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool checkThiefLock();
-	//UFUNCTION(BlueprintCallable, Category = "Function")
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool checkMySettlementAdjacency(EPlayer player);
 
 };

@@ -32,13 +32,14 @@ public:
 	bool canBuyRoad();
 	bool canUpgrade();
 
-	bool buyRoad();
+	bool buyRoad(bool free);
 	bool buySettlement(bool free);
 	bool upgradeSettlement();
 	void reset();
 	//cards management 
 	int32 getKnights();
 	int32 getCardCount(ECards cardC);
+	int32 getVP();
 	bool drawCard();
 	bool useCard(ECards card);
 	void addKnight();

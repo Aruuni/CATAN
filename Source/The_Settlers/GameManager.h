@@ -17,7 +17,7 @@ public:
 	AGameManager();
 
 	//Global resources
-	inline static TArray<int32> gResources = {5,5,5,5,5};
+	inline static TArray<int32> gResources = {10,10,10,10,10};
 	inline static TArray<ECards> Gdeck;
 
 
@@ -47,18 +47,17 @@ public:
 
 	// Turn duration in seconds
 	//cvhange manually in the player inventories res out bc for some reason you cant have a static float???
-	float TurnDuration = 10.f;
+	float TurnDuration = 1000.f;
+
 	FTimerHandle TurnTimerHandle;
 
-	
 	//debugging
 	int32 globalTurn = 1;
 	int32 dice;
 	void StartTurn();
 	void EndTurn();
 
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	int32 getDice();
+
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	void SkipTurn();
@@ -66,11 +65,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool trade(EPlayer player1, EPlayer player2, EResource resource, EResource resource2);
 
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	int32 getCardCount(EPlayer player, ECards cardC);
 
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	int32 knightCount(EPlayer player);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool useCard(EPlayer player, ECards card);
@@ -78,12 +73,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool drawCard();
 
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	FString getResourceHUD(EPlayer player, EResource resource);
 
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	void yearOPlenty_AUTO();
 
+	void yearOPlenty();
+	//Card functionality functions coupled to the HUD
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool freeRoads(EPlayer player);
 
@@ -99,8 +92,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool addResource(EPlayer player, EResource resource);
 
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool shipTrade(EPlayer player, EResource resource1, EResource resource2);
 	void largestArmy();
-
+	
+	//HUD Value Getters
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	int32 getLargestArmyPlayer();
 
@@ -112,4 +108,22 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	int32 getTurnNumber();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getVictoryPoints(EPlayer player);
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	FString getResourceHUD(EPlayer player, EResource resource);
+	
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getRemainingTime();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getDice();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 getCardCount(EPlayer player, ECards cardC);
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 knightCount(EPlayer player);
 };

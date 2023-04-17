@@ -12,14 +12,13 @@ void AHexTileSpawner::BeginPlay() {
 	gridArray.SetNumZeroed(19);
 	AHexTile* origin = GetWorld()->SpawnActor<AHexTile>(DESERT, FVector(FIntPoint(0, 0)), FRotator::ZeroRotator);
 	gridArray[0] = origin;
-	int8 counter = 0;
+	int8 counter = rand() % 5;
 	for (int8 hex = 1; hex < 19; ++hex) {
-		int randno = rand() % 5;
 		TArray<TSubclassOf<AHexTile>> toSpawn = { CLAY, MOUNTAIN, FOREST, PASTURE, FIELD };
 		FRotator RotationValue(0.0f, rand() % 5 * 60, 0.0f);
-		AHexTile* newTile = GetWorld()->SpawnActor<AHexTile>(toSpawn[randno], catanGrid[hex], RotationValue);
+		AHexTile* newTile = GetWorld()->SpawnActor<AHexTile>(toSpawn[counter%5], catanGrid[hex], RotationValue);
 		newTile->settSet();
-		newTile->tileType = (EHexTile)(randno);
+		newTile->tileType = (EHexTile)(counter % 5);
 		gridArray[hex] = newTile;
 		++counter;
 	}

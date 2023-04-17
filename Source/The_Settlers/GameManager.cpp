@@ -40,7 +40,7 @@ void AGameManager::EndTurn() {
 	if (monopolyLock) { monopoly((EResource) (rand() % 5)); }
 	monopolyLock = false;
 
-	if (yearOPlentyLock) { yearOPlenty_AUTO(); }
+	if (yearOPlentyLock) { yearOPlenty(); }
 	yearOPlentyLock = false;
 
 	if (freeRoadsLock) { freeRoadsCount = 0; freeRoadsLock = false; }
@@ -83,7 +83,7 @@ PlayerInventory* AGameManager::getPlayer(EPlayer player) {
 
 #pragma region cards 
 
-void AGameManager::yearOPlenty_AUTO() {
+void AGameManager::yearOPlenty() {
 	int rcount = 0;
 	int fcount = 0;
 	while (rcount != 2|| fcount == 5) {
@@ -125,6 +125,20 @@ bool AGameManager::victoryPoint(EPlayer player) {
 	return false;
 }
 
+bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource resource2) {
+	if (gResources[(int32)resource2] < 18) {
+		if (getPlayer(player)->Resources[(int32)resource1] >=4) {
+			getPlayer(player)->removeResource(resource1);
+			getPlayer(player)->removeResource(resource1);
+			getPlayer(player)->removeResource(resource1);
+			getPlayer(player)->removeResource(resource1);
+			getPlayer(player)->addResource(resource2);
+			return true;
+		}
+	}
+	return false;
+}
+
 void AGameManager::largestArmy() {
 	EPlayer playerVP = EPlayer::NONE;
 	int largest = 0;
@@ -155,6 +169,10 @@ int32 AGameManager::getPlayerTurn() {
 
 int32 AGameManager::getTurnNumber() {
 	return globalTurn;
+}
+
+int32 AGameManager::getVictoryPoints(EPlayer player) {
+	return getPlayer(player)->getVP();
 }
 
 TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop, int roads) {
@@ -218,5 +236,9 @@ int32 AGameManager::knightCount(EPlayer player) {
 	return getPlayer(player)->getKnights();
 }
 
+int32 AGameManager::getRemainingTime() {
+	return (int32)GetWorldTimerManager().GetTimerRemaining(TurnTimerHandle);
+
+}
 
 #pragma endregion 
