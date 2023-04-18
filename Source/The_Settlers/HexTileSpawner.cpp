@@ -29,23 +29,22 @@ void AHexTileSpawner::BeginPlay() {
 		int random = rand() % toSpawn.Num();
 		TSubclassOf<ANumberTile> selected = toSpawn[random];
 		toSpawn.RemoveAt(random);
-		ENumberTile nr = number[random];
+		ENumberTile nt = number[random];
 		number.RemoveAt(random);
 		ANumberTile* newNumber = GetWorld()->SpawnActor<ANumberTile>(selected, gridArray[numt]->GetActorLocation(), FRotator::ZeroRotator);
-		gridArray[numt]->number = (int32)nr;
+		gridArray[numt]->number = (int32)nt;
 	}
 }
 
 bool AHexTileSpawner::DiceRolled(int32 dice) {	
-	if (dice != 7) {
-		for (int8 hex = 0; hex < gridArray.Num(); ++hex) {
-			if (gridArray[hex]->number == dice) {
-				for (int8 sett = 0; sett < 6; ++sett) {
-					gridArray[hex]->settArray[sett]->AddResource((EResource)gridArray[hex]->tileType);
-				}
+	if (dice == 7) { return true; }
+	for (int8 hex = 0; hex < gridArray.Num(); ++hex) {
+		if (gridArray[hex]->number == dice) {
+			if (gridArray[hex]->hasThief) { continue; }
+			for (int8 sett = 0; sett < 6; ++sett) {
+				gridArray[hex]->settArray[sett]->AddResource((EResource)gridArray[hex]->tileType);
 			}
 		}
-		return false;
 	}
-	return true;
+	return false;
 }

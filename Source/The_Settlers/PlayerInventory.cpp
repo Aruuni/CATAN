@@ -57,7 +57,7 @@ bool PlayerInventory::buySettlement(bool free) {
 }
 
 bool PlayerInventory::upgradeSettlement() {
-	if (true || canUpgrade() && (Resources[(int32)EResource::WHEAT] >= 2 && Resources[(int32)EResource::ORE] >= 3)) {
+	if (canUpgrade() && (Resources[(int32)EResource::WHEAT] >= 2 && Resources[(int32)EResource::ORE] >= 3)) {
 		----Resources[(int32)EResource::WHEAT]; ----AGameManager::gResources[(int32)EResource::WHEAT];
 		------Resources[(int32)EResource::ORE]; ------AGameManager::gResources[(int32)EResource::ORE];
 		--settlements;

@@ -4,8 +4,8 @@
 #include <Components/StaticMeshComponent.h>
 #include <Kismet/GameplayStatics.h>
 
-
 class AHexSpawner;
+
 AHexTile::AHexTile() {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
@@ -22,14 +22,9 @@ void AHexTile::settSet() {
 	}
 }
 
-EPlayer AHexTile::getCurrentPlayer() {
-	return AGameManager::CurrentPlayer;
-}
 
-bool AHexTile::checkThiefLock() {
-	return AGameManager::thiefLock;
-}
 
+//only used for trade tiles 
 bool AHexTile::checkMySettlementAdjacency(EPlayer player) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);

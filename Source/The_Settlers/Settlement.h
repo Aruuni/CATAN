@@ -16,6 +16,7 @@ class THE_SETTLERS_API ASettlement : public AActor
 	GENERATED_BODY()
 
 public:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Buying")
 	bool locked = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Buying")
@@ -23,12 +24,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Buying")
 	bool upgraded = false;
 
+	//the owner of the settlement
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Owner")
 	EPlayer playerOwner;
 
+	//the arays of all settlements, they area all the same but have different colors
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-1")
 	TArray<TSubclassOf<ABuilding>> Level1;
 
+	//the arays of all cities, they area all the same but have different colors
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-2")
 	TArray<TSubclassOf<ABuilding>> Level2;
 
