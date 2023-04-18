@@ -9,21 +9,32 @@ bool ARoad::RoadBuyer(EPlayer player) {
 	if (bought) { return false; }
 	//if (game->CurrentPlayer != player) { return false; }
 	if (AGameManager::gameGlobal->globalTurn < 9) {
-		if (roadAdjacency(AGameManager::CurrentPlayer) || (settlementAdjacency(AGameManager::CurrentPlayer)) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(AGameManager::gameGlobal->globalTurn < 9)) {
-			GetWorld()->SpawnActor<ABuilding>(roads[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), GetActorRotation());
+		if (roadAdjacency(player) || (settlementAdjacency(player)) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(true)) {
+			GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
 			bought = true;
-			playerOwner = AGameManager::CurrentPlayer;
+			playerOwner = player;
 			return true;
 		}
 		return false;
 	}
-	else if (roadAdjacency(AGameManager::CurrentPlayer) || settlementAdjacency(AGameManager::CurrentPlayer)) {
+	else if (roadAdjacency(player) || settlementAdjacency(player)) {
+		if (AGameManager::roadBuildingLock && AGameManager::freeRoadsCount <2) {
+			if (roadAdjacency(player) || (settlementAdjacency(player)) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(true)) {
+				GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
+				bought = true;
+				playerOwner = player;
+				++AGameManager::freeRoadsCount;
+				return true;
+			}
+			return false;
+		}
 		if (AGameManager::gameGlobal->getPlayer(player)->buyRoad(false)) {
-			GetWorld()->SpawnActor<ABuilding>(roads[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), GetActorRotation());
+			GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
 			bought = true;
-			playerOwner = AGameManager::CurrentPlayer;
+			playerOwner = player;
 			return true;
 		}
+
 	}
 	return false;
 }

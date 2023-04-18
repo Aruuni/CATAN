@@ -15,20 +15,20 @@ bool ASettlement::SettlementBuyer(EPlayer player) {
     if (locked || bought) { return false; }
     //if (AGameManager::gameGlobal->CurrentPlayer != player) { return false; }
     if (AGameManager::gameGlobal->globalTurn < 9) {
-        if (AGameManager::gameGlobal->getPlayer(AGameManager::CurrentPlayer)->buySettlement(true)) {
-            building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
+        if (AGameManager::gameGlobal->getPlayer(player)->buySettlement(true)) {
+            building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)player - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
             bought = true;
             playerOwner = AGameManager::CurrentPlayer;
-            settlementLock(player);
+            settlementLock();
             return true;
         }
         return false;
     }
-    else if (roadAdjacency(AGameManager::CurrentPlayer) && AGameManager::gameGlobal->getPlayer(AGameManager::CurrentPlayer)->buySettlement(false)){
-        building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)AGameManager::gameGlobal->getCurrentPlayer() - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
+    else if (roadAdjacency(player) && AGameManager::gameGlobal->getPlayer(player)->buySettlement(false)){
+        building = GetWorld()->SpawnActor<ABuilding>(Level1[(int32)player - 1], GetActorLocation(), FRotator(0.0f, rand() % 5 * 60, 0.0f));
         bought = true;
-        playerOwner = AGameManager::CurrentPlayer;
-        settlementLock(player);
+        playerOwner = player;
+        settlementLock();
         return true;
     }
     return false;
@@ -64,7 +64,7 @@ void ASettlement::stealResource(EPlayer stealer) {
    /////////////////////////////////////////////////////////////////////
 }
 
-void ASettlement::settlementLock(EPlayer player) {
+void ASettlement::settlementLock() {
     TArray<AActor*> foundActors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
     for (AActor* Actor : foundActors) {
@@ -81,7 +81,7 @@ bool ASettlement::roadAdjacency(EPlayer player) {
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARoad::StaticClass(), foundActors);
     for (AActor* Actor : foundActors) {
         if (Actor == this) { continue; }
-        if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 750.0f) {
+        if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 400.0f) {
             ARoad* road = Cast<ARoad>(Actor);
             if (road->playerOwner == player) { return true; }
         }

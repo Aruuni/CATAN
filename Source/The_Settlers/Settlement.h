@@ -53,7 +53,7 @@ public:
 	void stealResource(EPlayer stealer);
 
 
-	void settlementLock(EPlayer player);
+	void settlementLock();
 
 	bool roadAdjacency(EPlayer player);
 

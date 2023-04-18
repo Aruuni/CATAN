@@ -16,7 +16,7 @@ public:
 	// Sets default values for this actor's properties
 	AThief();
 
-
+	inline static AThief* thiefPointer;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thief")
 	AHexTile* attachedTile;
 
@@ -26,6 +26,6 @@ public:
 	UStaticMeshComponent* thiefMesh;
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void moveThief(FVector loc, AHexTile* newTile);
+	void moveThief(AHexTile* newTile);
 
 };

@@ -2,6 +2,7 @@
 #include "PlayerInventory.h"
 #include "HexTileSpawner.h"
 #include "TimerManager.h"
+#include "Thief.h"
 #include <Kismet/GameplayStatics.h>
 
 AGameManager::AGameManager() {
@@ -9,7 +10,7 @@ AGameManager::AGameManager() {
 	gameGlobal = this;
 	Gdeck = deckMaker(14, 6, 2, 2, 1);
 	for (int8 i = 0; i < 4; ++i) {
-		invs.Add(new PlayerInventory((EPlayer)(i + 1)));
+		invs.Add(new PlayerInventory((EPlayer)(i + 1), resources/5));
 	}
 }
 // Called when the game starts or when spawned
@@ -27,25 +28,31 @@ void AGameManager::StartTurn() {
 		thiefLock = true;
 	}
 	dice = dice1 + dice2;
+	if (CurrentPlayer != EPlayer::PLAYER1) {
+		if (dice == 7) { AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
+		buyRandomSett(CurrentPlayer);
+		buyRandomRoad(CurrentPlayer);
+		upgradeRandomSettlements(CurrentPlayer);
+		drawCard();
+		if (globalTurn > 8) {
+			if (useCard(CurrentPlayer, ECards::KNIGHT)) { knight(CurrentPlayer); AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
+			if (useCard(CurrentPlayer, ECards::MONOPOLY)) { monopoly((EResource)(rand() % 5)); }
+			if (useCard(CurrentPlayer, ECards::FREEROAD)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer);
+			if (useCard(CurrentPlayer, ECards::YEAROFPLENTY)) { yearOPlenty(); }
+			if (useCard(CurrentPlayer, ECards::VICTORYPOINT)) { victoryPoint(CurrentPlayer); }
+			}
+		}
+
+
+	}
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 }
 
 void AGameManager::EndTurn() {
-	//automatic behaviour for the bots
-	if (thiefLock) { stealAll(); }
-	thiefLock = false;
 
-	if (monopolyLock) { monopoly((EResource) (rand() % 5)); }
-	monopolyLock = false;
-
-	if (yearOPlentyLock) { yearOPlenty(); }
-	yearOPlentyLock = false;
-
-	if (roadBuildingLock) { freeRoadsCount = 0; roadBuildingLock = false; }
-	
 	//these get calculated at the end
 	largestArmy();
-	//longestRoad();
+	longestRoad();
 	//locks reset at the end of the turn
 	refreshAll();
 	//the player turn gets incremented
@@ -55,6 +62,17 @@ void AGameManager::EndTurn() {
 		CurrentPlayerInt = 1;
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
+	if (globalTurn<9) {
+		if (globalTurn == 1) { CurrentPlayer = EPlayer::PLAYER1; }
+		if (globalTurn == 2) { CurrentPlayer = EPlayer::PLAYER2; }
+		if (globalTurn == 3) { CurrentPlayer = EPlayer::PLAYER3; }
+		if (globalTurn == 4) { CurrentPlayer = EPlayer::PLAYER4; }
+		if (globalTurn == 5) { CurrentPlayer = EPlayer::PLAYER4; }
+		if (globalTurn == 6) { CurrentPlayer = EPlayer::PLAYER3; }
+		if (globalTurn == 7) { CurrentPlayer = EPlayer::PLAYER2; }
+		if (globalTurn == 8) { CurrentPlayer = EPlayer::PLAYER1; }
+
+	}
 	globalTurn++;
 	StartTurn();
 }
@@ -68,26 +86,75 @@ EPlayer AGameManager::getCurrentPlayer() {
 	return CurrentPlayer;
 }
 
+void AGameManager::buyRandomRoad(EPlayer player) {
+	if (player == EPlayer::PLAYER1) { return; }
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARoad::StaticClass(), foundActors);
+	for (AActor* Actor : foundActors) {
+		ARoad* road = Cast<ARoad>(Actor);
+		if (road->RoadBuyer(player)) {
+			return;
+		};
+
+	}
+}
+
+void AGameManager::upgradeRandomSettlements(EPlayer player) {
+	if (player == EPlayer::PLAYER1) { return; }
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
+	ShuffleTArray(foundActors);
+	for (AActor* Actor : foundActors) {
+		ASettlement* sett = Cast<ASettlement>(Actor);
+		if (sett->playerOwner == player && !sett->upgraded) {
+			if (sett->Upgrade(player)) {
+				return;
+			};
+		}
+	}
+}
+
+void AGameManager::buyRandomSett(EPlayer player) {
+	if (player == EPlayer::PLAYER1) { return; }
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
+	ShuffleTArray(foundActors);
+	for (AActor* Actor : foundActors) {
+		ASettlement* sett = Cast<ASettlement>(Actor);
+		if (sett->SettlementBuyer(player)) {
+			return;
+		};
+
+	}
+}
+
+void AGameManager::ShuffleTArray(TArray<AActor*>& MyArray) {
+	for (int32 i = 0; i < MyArray.Num(); i++)
+	{
+		int32 j = FMath::RandRange(0, MyArray.Num() - 1);
+		MyArray.Swap(i, j);
+	}
+}
+
 #pragma endregion
 
 #pragma region cards 
 
 void AGameManager::yearOPlenty() {
-	int rcount = 0;
-	int fcount = 0;
-	while (rcount != 2|| fcount == 5) {
-		if (getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5) + 1))) { ++rcount; }
-		else { ++fcount; }
-	}
+	getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5)));
+	getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5)));
+		
+	
 }
 
 //monopoly behaviour called by the widget, can also be called by the bots
 void AGameManager::monopoly(EResource resource) {
+	int32 total = 0;
 	for (PlayerInventory* inv : invs) {
+		total += inv->Resources[(int32)resource];
 		inv->Resources[(int32)resource] = 0;
 	}
-	getPlayer(CurrentPlayer)->Resources[(int32)resource] = gResources[(int32)resource];
-	monopolyLock = false;
+	getPlayer(CurrentPlayer)->Resources[(int32)resource] = total;
 }
 
 //turns on the roadbuilding lock, called by the widget, can also be called by the bots
@@ -105,7 +172,7 @@ bool AGameManager::knight(EPlayer player) {
 	if (getPlayer(player)->useCard(ECards::KNIGHT)) {
 		getPlayer(CurrentPlayer)->addKnight();
 		thiefLock = true;
-		largestArmy();
+		//largestArmy();
 		return true;
 	}
 	return false;
@@ -127,19 +194,20 @@ void AGameManager::largestArmy() {
 	EPlayer playerVP = EPlayer::NONE;
 	int largest = 0;
 	for (PlayerInventory* inv : invs) {
-		if (inv->knights > largest && inv->knights >= 3) {
-			largest = inv->knights;
+		if (inv->getKnights() > largest && inv->getKnights() >= 3) {
+			largest = inv->getKnights();
 			playerVP = inv->player;
 		}
 	}
 	if (playerVP != largestArmyPlayer) {
 		if (largestArmyPlayer != EPlayer::NONE) { ----getPlayer(largestArmyPlayer)->victoryPoints; }
 		++++getPlayer(playerVP)->victoryPoints;
+		largestArmyPlayer = playerVP;
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Player with largest army:    %d"), (int32)playerVP));
 }
 
-
+//calculates the player with the most roads
 void AGameManager::longestRoad() {
 	EPlayer playerVP = EPlayer::NONE;
 	int largest = 0;
@@ -149,9 +217,10 @@ void AGameManager::longestRoad() {
 			playerVP = inv->player;
 		}
 	}
-	if (playerVP != largestArmyPlayer) {
-		if (largestArmyPlayer != EPlayer::NONE) { ----getPlayer(largestArmyPlayer)->victoryPoints; }
+	if (playerVP != longestRoadPlayer) {
+		if (longestRoadPlayer != EPlayer::NONE) { ----getPlayer(longestRoadPlayer)->victoryPoints; }
 		++++getPlayer(playerVP)->victoryPoints;
+		longestRoadPlayer = playerVP;
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Player with largest army:    %d"), (int32)playerVP));
 }
@@ -159,7 +228,7 @@ void AGameManager::longestRoad() {
 //makes the deck "bucket" based on how many cards of each type are required
 TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop, int roads) {
 	TArray<ECards> deck;
-	for (int8 i = 0; i < knight + vp + monopoly + yop + roads; ++i) {
+	for (int8 i = 0; i < knight + vp + monopoly + yop + roads+1; ++i) {
 		if (i < knight + 1) { deck.Add(ECards::KNIGHT); continue; }
 		if (i < knight + vp + 1) { deck.Add(ECards::VICTORYPOINT); continue; }
 		if (i < knight + vp + monopoly + 1) { deck.Add(ECards::MONOPOLY); continue; }
@@ -188,14 +257,14 @@ PlayerInventory* AGameManager::getPlayer(EPlayer player) {
 //checks if there are enough resources to give and recieve and removes the resources from the player and gives them away
 //resource1 is the x4 and resource2 is the x1. this is called by the blueprint once settlement adjacency has been established
 //returns true/false if the trade was successful
-bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource resource2) {
+bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource resource2, int32 ammount) {
 	if (gResources[(int32)resource2] < 18) {
-		if (getPlayer(player)->Resources[(int32)resource1] >= 4) {
+		if (getPlayer(player)->Resources[(int32)resource1] > ammount) {
 			//manually, i know, who cares
-			getPlayer(player)->removeResource(resource1);
-			getPlayer(player)->removeResource(resource1);
-			getPlayer(player)->removeResource(resource1);
-			getPlayer(player)->removeResource(resource1);
+			for (int32 i = 0; i < ammount; ++i) {
+				getPlayer(player)->removeResource(resource1);
+			}										   
+			
 			getPlayer(player)->addResource(resource2);
 			return true;
 		}

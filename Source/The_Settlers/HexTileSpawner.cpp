@@ -48,3 +48,7 @@ bool AHexTileSpawner::DiceRolled(int32 dice) {
 	}
 	return false;
 }
+
+AHexTile* AHexTileSpawner::GetRandomTile() {
+	return gridArray[rand() % gridArray.Num()];
+}

@@ -5,9 +5,10 @@ AThief::AThief() {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	thiefMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("bMesh"));
 	thiefMesh->SetupAttachment(RootComponent);
+	thiefPointer = this;
 }
 //remove the lcoc
-void AThief::moveThief(FVector loc, AHexTile* newTile) {
+void AThief::moveThief(AHexTile* newTile) {
 	if (!AGameManager::thiefLock) { return; }
 	// if the tile is not a resource tile, the thief cannot move there, it was able to move there before and it was kinda funny, but it was not intended.
 	if ((int32)newTile->tileType > 5) { return; }
@@ -17,7 +18,7 @@ void AThief::moveThief(FVector loc, AHexTile* newTile) {
 	attachedTile->hasThief = true;
 	AGameManager::thiefLock = false;
 	//steal all the resources
-	AGameManager::gameGlobal->stealAll();
-	this->SetActorLocation(loc);
+	//AGameManager::gameGlobal->stealAll();
+	this->SetActorLocation(newTile->GetActorLocation());
 }
 

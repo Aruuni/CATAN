@@ -2,17 +2,17 @@
 #include "ENUMS.h"	
 #include "GameManager.h"
 
-PlayerInventory::PlayerInventory(EPlayer player) {
+PlayerInventory::PlayerInventory(EPlayer player, int32 res) {
 	this->player = player;
-	this->Resources = {2,2,2,2,2};
+	this->Resources = { res,res,res,res,res };
 }
 
 
 #pragma region BORING GETTERS
 
-bool PlayerInventory::canBuyRoad() { return canBuyRoadbool && roads <=15; }
-bool PlayerInventory::canBuySett() { return canBuySettbool && settlements<=5; }
-bool PlayerInventory::canUpgrade() { return canUpgradebool && cities <=5; }
+bool PlayerInventory::canBuyRoad() { return canBuyRoadbool && roads <15; }
+bool PlayerInventory::canBuySett() { return canBuySettbool && settlements < 5; }
+bool PlayerInventory::canUpgrade() { return canUpgradebool && cities <5; }
 
 #pragma endregion
 
@@ -92,10 +92,12 @@ int32 PlayerInventory::getVP() {
 }
 
 bool PlayerInventory::drawCard() {
+	if (AGameManager::Gdeck.Num() == 0) { return false; }
 	if (canDrawCardbool && (Resources[(int32)EResource::ORE] >= 1 && Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::WOOL] >= 1)) {
 		--Resources[(int32)EResource::ORE]; --AGameManager::gResources[(int32)EResource::ORE];
 		--Resources[(int32)EResource::WHEAT]; --AGameManager::gResources[(int32)EResource::WHEAT];
 		--Resources[(int32)EResource::WOOL]; --AGameManager::gResources[(int32)EResource::WOOL];
+		if (AGameManager::Gdeck.Num() == 1) { hand.Add((AGameManager::Gdeck)[0]); AGameManager::Gdeck.RemoveAt(0); canDrawCardbool = false; return true; }
 		int32 randno = rand() % AGameManager::Gdeck.Num();
 		hand.Add((AGameManager::Gdeck)[randno]);
 		unplayable = (AGameManager::Gdeck)[randno];
@@ -163,7 +165,7 @@ rereoll:
 }
 
 bool PlayerInventory::addResource(EResource resource) {
-	if (AGameManager::gResources[(int32)resource] <= 18) { ++Resources[(int32)resource]; ++AGameManager::gResources[(int32)resource]; return true; }
+	if (AGameManager::gResources[(int32)resource] < 18) { ++Resources[(int32)resource]; ++AGameManager::gResources[(int32)resource]; return true; }
 	return false;
 }
 

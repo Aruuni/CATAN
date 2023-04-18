@@ -5,7 +5,7 @@
 
 class THE_SETTLERS_API PlayerInventory{
 public:
-	PlayerInventory(EPlayer player);
+	PlayerInventory(EPlayer player, int32 res);
 	EPlayer player;
 	// pool respirces
 	TArray<int32> Resources;

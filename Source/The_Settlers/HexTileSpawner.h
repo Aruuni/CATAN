@@ -5,9 +5,11 @@
 #include "Engine.h"
 #include "GameFramework/Actor.h"
 #include "NumberTile.h"
+#include "HexTile.h"
 #include "HexTileSpawner.generated.h"
 
-class AHexTile;
+
+
 
 UCLASS()
 class THE_SETTLERS_API AHexTileSpawner : public AActor {
@@ -78,6 +80,8 @@ public:
 	TSubclassOf<ANumberTile> TWELVE;
 
 	bool DiceRolled(int32 dice);
+
+	AHexTile* GetRandomTile();
 
 
 };
