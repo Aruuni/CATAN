@@ -39,9 +39,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	EPlayer getCurrentPlayer();
-	int32 botSpeed = 2;
+	int32 botSpeed = 5;
 	// Turn duration in seconds
-	//float TurnDuration = 0.0001f;
 	float TurnDuration = 60.f;
 	//the turn number to be displayed on the HUD
 	int32 globalTurn = 1;
@@ -147,6 +146,7 @@ private:
 	int32 dice;
 	EPlayer largestArmyPlayer = EPlayer::NONE;
 	EPlayer longestRoadPlayer = EPlayer::NONE;
+
 	FTimerHandle TurnTimerHandle;
 	FTimerHandle botTimeHandle;
 	

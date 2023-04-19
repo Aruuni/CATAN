@@ -5,7 +5,7 @@ AThief::AThief() {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	thiefMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("bMesh"));
 	thiefMesh->SetupAttachment(RootComponent);
-	thiefPointer = this;
+	thief = this;
 }
 //remove the lcoc
 void AThief::moveThief(AHexTile* newTile) {
@@ -19,7 +19,7 @@ void AThief::moveThief(AHexTile* newTile) {
 	AGameManager::thiefLock = false;
 	AGameManager::stealLock = true;
 	//steal all the resources
-	//AGameManager::gameGlobal->stealAll();
+	AGameManager::gameGlobal->stealAll();
 	this->SetActorLocation(newTile->GetActorLocation());
 }
 

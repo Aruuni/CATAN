@@ -24,10 +24,13 @@ void AGameManager::StartTurn() {
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
-	 
-	if (globalTurn > 8 && AHexTileSpawner::hexManager->DiceRolled(dice1 + dice2)) {
+	
+	if (globalTurn > 8 ) {
+		if (AHexTileSpawner::hexManager->DiceRolled(dice1 + dice2)) {
+			thiefLock = true;
+		}
 		dice = dice1 + dice2;
-		thiefLock = true;
+		
 	}
 	
 	if (CurrentPlayer != EPlayer::PLAYER1) {
@@ -39,6 +42,9 @@ void AGameManager::StartTurn() {
 
 void AGameManager::EndTurn() {
 	//these get calculated at the end
+	if (thiefLock) {
+		stealAll();
+	}
 	largestArmy();
 	longestRoad();
 	//locks reset at the end of the turn
@@ -90,13 +96,13 @@ void AGameManager::endBot() {
 }
 
 bool AGameManager::botAction() {
-	if (dice == 7) { AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
+	if (dice == 7) { AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
 	if (buyRandomSett(CurrentPlayer)) { return true; }
 	if (buyRandomRoad(CurrentPlayer)) { return true; }
 	if (upgradeRandomSettlements(CurrentPlayer)) { return true; }
 	drawCard();
 	if (globalTurn > 8) {
-		if (useCard(CurrentPlayer, ECards::KNIGHT)) { knight(CurrentPlayer); AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
+		if (useCard(CurrentPlayer, ECards::KNIGHT)) { knight(CurrentPlayer); AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
 		if (useCard(CurrentPlayer, ECards::MONOPOLY)) { monopoly((EResource)(rand() % 5)); return true; }
 		if (useCard(CurrentPlayer, ECards::FREEROAD)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
 		if (useCard(CurrentPlayer, ECards::YEAROFPLENTY)) { yearOPlenty(); return true; }

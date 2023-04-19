@@ -4,7 +4,6 @@
 #include "Settlement.h"
 #include "GameFramework/Actor.h"
 #include "ENUMS.h"
-#include "GameManager.h"
 #include "HexTile.generated.h"
 
 class  UstaticMeshComponent;
@@ -31,14 +30,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
 	EHexTile tileType;
 
+	//the array of adjacent settlements-
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool checkMySettlementAdjacency(EPlayer player); 
+
 	//the setter for the adjacent selttlement arrays
 	void settSet();
 
+private:
 	//the mesh of the hexTile
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
+	UPROPERTY(EditAnywhere, Category = "Hex-Tile")
 	UStaticMeshComponent* TileMesh;
-
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	bool checkMySettlementAdjacency(EPlayer player);
 
 };

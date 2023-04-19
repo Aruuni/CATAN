@@ -10,7 +10,6 @@ bool ARoad::RoadBuyer(EPlayer player) {
 	if (AGameManager::gameGlobal->CurrentPlayer != player) { return false; }
 	if (AGameManager::gameGlobal->globalTurn < 9) {
 		if (settlementAdjacency(player) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(true)) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Road Building test"));
 			GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
 			bought = true;
 			playerOwner = player;
@@ -57,7 +56,6 @@ bool ARoad::settlementAdjacency(EPlayer player) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {
-		if (Actor == this) { continue; }
 		if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 470.0f) {
 			ASettlement* sett = Cast<ASettlement>(Actor);
 			if (sett->playerOwner == player) { return true; }

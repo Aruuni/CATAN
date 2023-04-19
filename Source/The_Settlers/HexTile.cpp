@@ -1,5 +1,4 @@
 #include "HexTile.h"
-#include "Thief.h"
 #include <Components/SceneCaptureComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include <Kismet/GameplayStatics.h>
@@ -16,8 +15,7 @@ void AHexTile::settSet() {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {
 		if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 1000.0f) {
-			ASettlement* Sett = Cast<ASettlement>(Actor);
-			settArray.Add(Sett);
+			settArray.Add(Cast<ASettlement>(Actor));
 		}
 	}
 }
@@ -30,8 +28,7 @@ bool AHexTile::checkMySettlementAdjacency(EPlayer player) {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {
 		if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 1000.0f) {
-			ASettlement* Sett = Cast<ASettlement>(Actor);
-			if (Sett->playerOwner == player) {
+			if (Cast<ASettlement>(Actor)->playerOwner == player) {
 				return true;
 			}
 		}
