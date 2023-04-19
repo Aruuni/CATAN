@@ -74,14 +74,12 @@ EPlayer AGameManager::getCurrentPlayer() {
 	return CurrentPlayer;
 }
 
-
 #pragma endregion
 
 #pragma region Bot Actions
 
 void AGameManager::startBot() {
 	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, ((rand() % botSpeed) + 1), false);
-
 }
 
 void AGameManager::endBot() {
@@ -105,7 +103,6 @@ bool AGameManager::botAction() {
 		if (useCard(CurrentPlayer, ECards::VICTORYPOINT)) { victoryPoint(CurrentPlayer); return true; }
 	}
 	return false;
-
 }
 
 bool AGameManager::buyRandomRoad(EPlayer player) {
