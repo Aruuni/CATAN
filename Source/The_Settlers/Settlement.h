@@ -50,12 +50,17 @@ public:
 
 	ASettlement();
 
-	void stealResource(EPlayer stealer);
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool stealResource(EPlayer stealer);
 
+	bool thiefAdjacency();
 
 	void settlementLock();
 
 	bool roadAdjacency(EPlayer player);
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	EPlayer getOwner();
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool boughtChecker();

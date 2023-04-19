@@ -18,7 +18,7 @@ public:
 	
 	//constructor for the game manager
 	AGameManager();
-	inline static int32 resources = 20000;
+	inline static int32 resources = 0;
 	//Global resources and the deck, static as they need to be accessed from anywhere and they are located only once in the translation units
 	inline static TArray<int32> gResources = { resources, resources,resources,resources,resources };
 	inline static TArray<ECards> Gdeck;
@@ -33,15 +33,16 @@ public:
 	//LOCKS - inline and static so they can be accessed from anywhere and they are located only once in the translation units
 	inline static bool thiefLock = false;
 	inline static bool roadBuildingLock = false;
+	inline static bool stealLock = false;
 	inline static int freeRoadsCount = 0;
 	inline static EPlayer CurrentPlayer;
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	EPlayer getCurrentPlayer();
-
+	int32 botSpeed = 2;
 	// Turn duration in seconds
-	float TurnDuration = 0.0001f;
-	//float TurnDuration = 60.f;
+	//float TurnDuration = 0.0001f;
+	float TurnDuration = 60.f;
 	//the turn number to be displayed on the HUD
 	int32 globalTurn = 1;
 
@@ -134,10 +135,10 @@ public:
 	int32 knightCount(EPlayer player);
 
 
-	void buyRandomRoad(EPlayer player);
-	void buyRandomSett(EPlayer player);
+	bool buyRandomRoad(EPlayer player);
+	bool buyRandomSett(EPlayer player);
 	void ShuffleTArray(TArray<AActor*>& MyArray);
-	void upgradeRandomSettlements(EPlayer player);
+	bool upgradeRandomSettlements(EPlayer player);
 
 
 	
@@ -147,11 +148,14 @@ private:
 	EPlayer largestArmyPlayer = EPlayer::NONE;
 	EPlayer longestRoadPlayer = EPlayer::NONE;
 	FTimerHandle TurnTimerHandle;
+	FTimerHandle botTimeHandle;
 	
 	// start and end turn functions, these never get called by blueprints 
 	void StartTurn();
 	void EndTurn();
-
+	void startBot();
+	void endBot();
+	bool botAction();
 	//called by the timer to end the turn
 	void largestArmy();
 	void longestRoad();

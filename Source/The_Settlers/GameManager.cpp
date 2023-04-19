@@ -21,35 +21,23 @@ void AGameManager::BeginPlay() {
 #pragma region Turn Mechanics 
 
 void AGameManager::StartTurn() {
+	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
-
-	if (AHexTileSpawner::hexManager->DiceRolled(dice1+dice2)) {
+	 
+	if (globalTurn > 8 && AHexTileSpawner::hexManager->DiceRolled(dice1 + dice2)) {
+		dice = dice1 + dice2;
 		thiefLock = true;
 	}
-	dice = dice1 + dice2;
+	
 	if (CurrentPlayer != EPlayer::PLAYER1) {
-		if (dice == 7) { AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
-		buyRandomSett(CurrentPlayer);
-		buyRandomRoad(CurrentPlayer);
-		upgradeRandomSettlements(CurrentPlayer);
-		drawCard();
-		if (globalTurn > 8) {
-			if (useCard(CurrentPlayer, ECards::KNIGHT)) { knight(CurrentPlayer); AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
-			if (useCard(CurrentPlayer, ECards::MONOPOLY)) { monopoly((EResource)(rand() % 5)); }
-			if (useCard(CurrentPlayer, ECards::FREEROAD)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer);
-			if (useCard(CurrentPlayer, ECards::YEAROFPLENTY)) { yearOPlenty(); }
-			if (useCard(CurrentPlayer, ECards::VICTORYPOINT)) { victoryPoint(CurrentPlayer); }
-			}
-		}
-
+		startBot();
 
 	}
-	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
+	
 }
 
 void AGameManager::EndTurn() {
-
 	//these get calculated at the end
 	largestArmy();
 	longestRoad();
@@ -63,13 +51,13 @@ void AGameManager::EndTurn() {
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
 	if (globalTurn<9) {
-		if (globalTurn == 1) { CurrentPlayer = EPlayer::PLAYER1; }
-		if (globalTurn == 2) { CurrentPlayer = EPlayer::PLAYER2; }
-		if (globalTurn == 3) { CurrentPlayer = EPlayer::PLAYER3; }
+		if (globalTurn == 1) { CurrentPlayer = EPlayer::PLAYER2; }
+		if (globalTurn == 2) { CurrentPlayer = EPlayer::PLAYER3; }
+		if (globalTurn == 3) { CurrentPlayer = EPlayer::PLAYER4; }
 		if (globalTurn == 4) { CurrentPlayer = EPlayer::PLAYER4; }
-		if (globalTurn == 5) { CurrentPlayer = EPlayer::PLAYER4; }
-		if (globalTurn == 6) { CurrentPlayer = EPlayer::PLAYER3; }
-		if (globalTurn == 7) { CurrentPlayer = EPlayer::PLAYER2; }
+		if (globalTurn == 5) { CurrentPlayer = EPlayer::PLAYER3; }
+		if (globalTurn == 6) { CurrentPlayer = EPlayer::PLAYER2; }
+		if (globalTurn == 7) { CurrentPlayer = EPlayer::PLAYER1; }
 		if (globalTurn == 8) { CurrentPlayer = EPlayer::PLAYER1; }
 
 	}
@@ -86,21 +74,56 @@ EPlayer AGameManager::getCurrentPlayer() {
 	return CurrentPlayer;
 }
 
-void AGameManager::buyRandomRoad(EPlayer player) {
-	if (player == EPlayer::PLAYER1) { return; }
+
+#pragma endregion
+
+#pragma region Bot Actions
+
+void AGameManager::startBot() {
+	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, ((rand() % botSpeed) + 1), false);
+
+}
+
+void AGameManager::endBot() {
+	if (botAction()) { startBot(); }
+	else {
+		SkipTurn();
+	}
+}
+
+bool AGameManager::botAction() {
+	if (dice == 7) { AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
+	if (buyRandomSett(CurrentPlayer)) { return true; }
+	if (buyRandomRoad(CurrentPlayer)) { return true; }
+	if (upgradeRandomSettlements(CurrentPlayer)) { return true; }
+	drawCard();
+	if (globalTurn > 8) {
+		if (useCard(CurrentPlayer, ECards::KNIGHT)) { knight(CurrentPlayer); AThief::thiefPointer->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
+		if (useCard(CurrentPlayer, ECards::MONOPOLY)) { monopoly((EResource)(rand() % 5)); return true; }
+		if (useCard(CurrentPlayer, ECards::FREEROAD)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
+		if (useCard(CurrentPlayer, ECards::YEAROFPLENTY)) { yearOPlenty(); return true; }
+		if (useCard(CurrentPlayer, ECards::VICTORYPOINT)) { victoryPoint(CurrentPlayer); return true; }
+	}
+	return false;
+
+}
+
+bool AGameManager::buyRandomRoad(EPlayer player) {
+	if (player == EPlayer::PLAYER1) { return false; }
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARoad::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {
 		ARoad* road = Cast<ARoad>(Actor);
 		if (road->RoadBuyer(player)) {
-			return;
-		};
+			return true;
+		}
 
 	}
+	return false;
 }
-
-void AGameManager::upgradeRandomSettlements(EPlayer player) {
-	if (player == EPlayer::PLAYER1) { return; }
+//randomly buying buildings
+bool  AGameManager::upgradeRandomSettlements(EPlayer player) {
+	if (player == EPlayer::PLAYER1) { return false; }
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	ShuffleTArray(foundActors);
@@ -108,26 +131,28 @@ void AGameManager::upgradeRandomSettlements(EPlayer player) {
 		ASettlement* sett = Cast<ASettlement>(Actor);
 		if (sett->playerOwner == player && !sett->upgraded) {
 			if (sett->Upgrade(player)) {
-				return;
-			};
+				return true;
+			}
 		}
 	}
+	return false;
 }
 
-void AGameManager::buyRandomSett(EPlayer player) {
-	if (player == EPlayer::PLAYER1) { return; }
+bool AGameManager::buyRandomSett(EPlayer player) {
+	if (player == EPlayer::PLAYER1) { return false; }
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	ShuffleTArray(foundActors);
 	for (AActor* Actor : foundActors) {
 		ASettlement* sett = Cast<ASettlement>(Actor);
 		if (sett->SettlementBuyer(player)) {
-			return;
-		};
+			return true;
+		}
 
 	}
+	return false;
 }
-
+//needed a way to shuffle arays to make the bot random actions more random
 void AGameManager::ShuffleTArray(TArray<AActor*>& MyArray) {
 	for (int32 i = 0; i < MyArray.Num(); i++)
 	{
@@ -143,8 +168,6 @@ void AGameManager::ShuffleTArray(TArray<AActor*>& MyArray) {
 void AGameManager::yearOPlenty() {
 	getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5)));
 	getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5)));
-		
-	
 }
 
 //monopoly behaviour called by the widget, can also be called by the bots
@@ -172,7 +195,7 @@ bool AGameManager::knight(EPlayer player) {
 	if (getPlayer(player)->useCard(ECards::KNIGHT)) {
 		getPlayer(CurrentPlayer)->addKnight();
 		thiefLock = true;
-		//largestArmy();
+		largestArmy();
 		return true;
 	}
 	return false;

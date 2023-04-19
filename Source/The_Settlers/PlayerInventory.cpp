@@ -23,6 +23,7 @@ bool PlayerInventory::buyRoad(bool free) {
 	if (free) {
 		++roads;
 		canBuyRoadbool = false;
+		if (free && AGameManager::roadBuildingLock && AGameManager::freeRoadsCount<2) { canBuyRoadbool = true; }
 		return true;
 	}
 	else if (Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
@@ -155,13 +156,14 @@ void PlayerInventory::removeHalf() {
 
 int32 PlayerInventory::total() { return Resources[0] + Resources[1] + Resources[2] + Resources[3] + Resources[4]; }
 
-void PlayerInventory::removeOneRand(){
+EResource PlayerInventory::removeOneRand(){
 rereoll:
-	if (Resources[(int32)EResource::WHEAT] == 0 && Resources[(int32)EResource::BRICKS] == 0 && Resources[(int32)EResource::ORE] == 0 && Resources[(int32)EResource::WOOD] == 0 && Resources[(int32)EResource::WOOL] == 0) { return; }
+	if (Resources[(int32)EResource::WHEAT] == 0 && Resources[(int32)EResource::BRICKS] == 0 && Resources[(int32)EResource::ORE] == 0 && Resources[(int32)EResource::WOOD] == 0 && Resources[(int32)EResource::WOOL] == 0) { return EResource::NONE; }
 	int randomResource = rand() % 5;
 	if (Resources[randomResource] == 0) { goto rereoll; }
 	--Resources[randomResource]; 
 	--AGameManager::gResources[randomResource];
+	return (EResource)randomResource;
 }
 
 bool PlayerInventory::addResource(EResource resource) {

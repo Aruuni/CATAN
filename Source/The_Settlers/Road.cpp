@@ -7,9 +7,10 @@ ARoad::ARoad() {}
 
 bool ARoad::RoadBuyer(EPlayer player) {
 	if (bought) { return false; }
-	//if (game->CurrentPlayer != player) { return false; }
+	if (AGameManager::gameGlobal->CurrentPlayer != player) { return false; }
 	if (AGameManager::gameGlobal->globalTurn < 9) {
-		if (roadAdjacency(player) || (settlementAdjacency(player)) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(true)) {
+		if (settlementAdjacency(player) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(true)) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Road Building test"));
 			GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
 			bought = true;
 			playerOwner = player;

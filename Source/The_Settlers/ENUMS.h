@@ -39,6 +39,7 @@ enum class EResource : uint8 {
 	WOOD = 2,
 	WOOL = 3,
 	WHEAT = 4,
+	NONE = 5
 };
 
 class THE_SETTLERS_API ENUMS{

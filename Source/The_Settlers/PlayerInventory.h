@@ -49,9 +49,10 @@ public:
 	bool addResource(EResource resource);
 	bool removeResource(EResource resource);
 	int32 getResource(EResource resource);
-private:
+	EResource removeOneRand();
+
 	bool moreThanOne(ECards card);
 	int32 total();
-	void removeOneRand();
+	
 
 };
