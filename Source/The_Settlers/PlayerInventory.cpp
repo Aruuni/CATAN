@@ -25,6 +25,11 @@ bool PlayerInventory::buyRoad(bool free) {
 		canBuyRoadbool = false;
 		return true;
 	}
+	else if (AGameManager::roadBuildingLock) {
+		++roads;
+		++AGameManager::freeRoadsCount;
+		return true;
+	}
 	else if (Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {
 		--Resources[(int32)EResource::WOOD]; --AGameManager::gResources[(int32)EResource::WOOD];
 		--Resources[(int32)EResource::BRICKS]; --AGameManager::gResources[(int32)EResource::BRICKS];

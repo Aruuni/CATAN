@@ -19,7 +19,6 @@ bool ARoad::RoadBuyer(EPlayer player) {
 	}
 	else if (roadAdjacency(player) || settlementAdjacency(player)) {
 		if (AGameManager::gameGlobal->getPlayer(player)->buyRoad(false)) {
-			++AGameManager::freeRoadsCount;
 			GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
 			bought = true;
 			playerOwner = player;
