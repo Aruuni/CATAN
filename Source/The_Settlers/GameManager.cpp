@@ -21,8 +21,7 @@ void AGameManager::BeginPlay() {
 }
 
 bool AGameManager::END_GAME() {
-	return false;
-
+	return getPlayer(CurrentPlayer)->getVP() <10;
 }
 
 #pragma region Turn Mechanics 
