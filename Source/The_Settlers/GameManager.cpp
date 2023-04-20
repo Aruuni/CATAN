@@ -21,7 +21,6 @@ void AGameManager::BeginPlay() {
 #pragma region Turn Mechanics 
 
 void AGameManager::StartTurn() {
-	
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
 	
@@ -42,6 +41,12 @@ void AGameManager::StartTurn() {
 
 void AGameManager::EndTurn() {
 	//these get calculated at the end
+	if (globalTurn < 9) {
+		buyRandomSett(EPlayer::PLAYER1);
+		buyRandomRoad(EPlayer::PLAYER1);
+
+	}
+
 	if (thiefLock) {
 		stealAll();
 	}
@@ -66,10 +71,6 @@ void AGameManager::EndTurn() {
 		if (globalTurn == 7) { CurrentPlayer = EPlayer::PLAYER1; }
 		if (globalTurn == 8) { CurrentPlayer = EPlayer::PLAYER1; }
 
-	}
-	if (globalTurn == 1 || globalTurn == 8) {
-		buyRandomSett(EPlayer::PLAYER1);
-		buyRandomRoad(EPlayer::PLAYER1);
 	}
 	globalTurn++;
 	StartTurn();
@@ -116,7 +117,6 @@ bool AGameManager::botAction() {
 }
 
 bool AGameManager::buyRandomRoad(EPlayer player) {
-	if (player == EPlayer::PLAYER1) { return false; }
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARoad::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {
@@ -130,7 +130,6 @@ bool AGameManager::buyRandomRoad(EPlayer player) {
 }
 //randomly buying buildings
 bool  AGameManager::upgradeRandomSettlements(EPlayer player) {
-	if (player == EPlayer::PLAYER1) { return false; }
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	ShuffleTArray(foundActors);
@@ -146,7 +145,6 @@ bool  AGameManager::upgradeRandomSettlements(EPlayer player) {
 }
 
 bool AGameManager::buyRandomSett(EPlayer player) {
-	if (player == EPlayer::PLAYER1) { return false; }
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	ShuffleTArray(foundActors);
