@@ -21,23 +21,23 @@ void AGameManager::BeginPlay() {
 #pragma region Turn Mechanics 
 
 void AGameManager::StartTurn() {
-	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
+	
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
 	
 	if (globalTurn > 8 ) {
 		if (AHexTileSpawner::hexManager->DiceRolled(dice1 + dice2)) {
+			stealAll();
 			thiefLock = true;
 		}
 		dice = dice1 + dice2;
-		
 	}
 	
 	if (CurrentPlayer != EPlayer::PLAYER1) {
 		startBot();
 
 	}
-	
+	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 }
 
 void AGameManager::EndTurn() {
@@ -66,6 +66,10 @@ void AGameManager::EndTurn() {
 		if (globalTurn == 7) { CurrentPlayer = EPlayer::PLAYER1; }
 		if (globalTurn == 8) { CurrentPlayer = EPlayer::PLAYER1; }
 
+	}
+	if (globalTurn == 1 || globalTurn == 8) {
+		buyRandomSett(EPlayer::PLAYER1);
+		buyRandomRoad(EPlayer::PLAYER1);
 	}
 	globalTurn++;
 	StartTurn();
@@ -106,7 +110,7 @@ bool AGameManager::botAction() {
 		if (useCard(CurrentPlayer, ECards::MONOPOLY)) { monopoly((EResource)(rand() % 5)); return true; }
 		if (useCard(CurrentPlayer, ECards::FREEROAD)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
 		if (useCard(CurrentPlayer, ECards::YEAROFPLENTY)) { yearOPlenty(); return true; }
-		if (useCard(CurrentPlayer, ECards::VICTORYPOINT)) { victoryPoint(CurrentPlayer); return true; }
+		if (useCard(CurrentPlayer, ECards::VICTORYPOINT)) { developmentCard(CurrentPlayer); return true; }
 	}
 	return false;
 }
@@ -206,7 +210,7 @@ bool AGameManager::knight(EPlayer player) {
 
 //called by the widget, can also be called by the bots
 //simply just adds a victory point to the player if the card is playable and played
-bool AGameManager::victoryPoint(EPlayer player) {
+bool AGameManager::developmentCard(EPlayer player) {
 	if (getPlayer(player)->useCard(ECards::VICTORYPOINT)) {
 		getPlayer(player)->addVictoryPoint();
 		return true;

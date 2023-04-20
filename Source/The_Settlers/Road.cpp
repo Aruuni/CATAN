@@ -18,23 +18,13 @@ bool ARoad::RoadBuyer(EPlayer player) {
 		return false;
 	}
 	else if (roadAdjacency(player) || settlementAdjacency(player)) {
-		if (AGameManager::roadBuildingLock && AGameManager::freeRoadsCount <2) {
-			if (roadAdjacency(player) || (settlementAdjacency(player)) && AGameManager::gameGlobal->getPlayer(player)->buyRoad(true)) {
-				GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
-				bought = true;
-				playerOwner = player;
-				++AGameManager::freeRoadsCount;
-				return true;
-			}
-			return false;
-		}
 		if (AGameManager::gameGlobal->getPlayer(player)->buyRoad(false)) {
+			++AGameManager::freeRoadsCount;
 			GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
 			bought = true;
 			playerOwner = player;
 			return true;
 		}
-
 	}
 	return false;
 }

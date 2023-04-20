@@ -10,7 +10,7 @@ PlayerInventory::PlayerInventory(EPlayer player, int32 res) {
 
 #pragma region BORING GETTERS
 
-bool PlayerInventory::canBuyRoad() { return canBuyRoadbool && roads <15; }
+bool PlayerInventory::canBuyRoad() { return ( canBuyRoadbool && roads <15 ) || (AGameManager::roadBuildingLock && AGameManager::freeRoadsCount < 2 && roads < 15 )  ; }
 bool PlayerInventory::canBuySett() { return canBuySettbool && settlements < 5; }
 bool PlayerInventory::canUpgrade() { return canUpgradebool && cities <5; }
 
@@ -23,7 +23,6 @@ bool PlayerInventory::buyRoad(bool free) {
 	if (free) {
 		++roads;
 		canBuyRoadbool = false;
-		if (free && AGameManager::roadBuildingLock && AGameManager::freeRoadsCount<2) { canBuyRoadbool = true; }
 		return true;
 	}
 	else if (Resources[(int32)EResource::BRICKS] >= 1 && Resources[(int32)EResource::WOOD] >= 1) {

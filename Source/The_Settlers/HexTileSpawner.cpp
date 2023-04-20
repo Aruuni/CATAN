@@ -41,9 +41,7 @@ bool AHexTileSpawner::DiceRolled(int32 dice) {
 	for (int8 hex = 0; hex < gridArray.Num(); ++hex) {
 		if (gridArray[hex]->number == dice) {
 			if (gridArray[hex]->hasThief) { continue; }
-			for (int8 sett = 0; sett < 6; ++sett) {
-				gridArray[hex]->settArray[sett]->AddResource((EResource)gridArray[hex]->tileType);
-			}
+			gridArray[hex]->earnResource();
 		}
 	}
 	return false;

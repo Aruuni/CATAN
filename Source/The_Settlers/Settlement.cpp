@@ -53,7 +53,7 @@ bool ASettlement::Upgrade(EPlayer player) {
     return false;
 }
 
-void ASettlement::AddResource(EResource type) {
+void ASettlement::earnResource(EResource type) {
     if (playerOwner == EPlayer::NONE) { return; } 
     AGameManager::gameGlobal->getPlayer(playerOwner)->addResource(type);
     if (upgraded) { AGameManager::gameGlobal->getPlayer(playerOwner)->addResource(type); }

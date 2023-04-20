@@ -19,7 +19,6 @@ void AThief::moveThief(AHexTile* newTile) {
 	AGameManager::thiefLock = false;
 	AGameManager::stealLock = true;
 	//steal all the resources
-	AGameManager::gameGlobal->stealAll();
 	this->SetActorLocation(newTile->GetActorLocation());
 }
 

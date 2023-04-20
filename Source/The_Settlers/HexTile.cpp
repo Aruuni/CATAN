@@ -36,3 +36,9 @@ bool AHexTile::checkMySettlementAdjacency(EPlayer player) {
 	return false;
 }
 
+void AHexTile::earnResource() {
+	for (int8 sett = 0; sett < 6; ++sett) {
+		settArray[sett]->earnResource((EResource)tileType);
+	}
+}
+

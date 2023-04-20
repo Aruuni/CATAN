@@ -39,9 +39,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	EPlayer getCurrentPlayer();
-	int32 botSpeed = 5;
+	int32 botSpeed = 1;
 	// Turn duration in seconds
 	float TurnDuration = 60.f;
+
 	//the turn number to be displayed on the HUD
 	int32 globalTurn = 1;
 
@@ -87,7 +88,7 @@ public:
 	//plays the development card
 	//returns true if the card was played sucessfully false otherwise
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	bool victoryPoint(EPlayer player);
+	bool developmentCard(EPlayer player);
 
 	//needed in the implementation of Year of Plenty
 	//returns true if the resource was addes sucessfully false otherwise

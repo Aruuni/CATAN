@@ -40,7 +40,7 @@ public:
 	ABuilding* building;
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
-	void AddResource(EResource type);
+	void earnResource(EResource type);
 
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool SettlementBuyer(EPlayer player);

@@ -37,6 +37,8 @@ public:
 	//the setter for the adjacent selttlement arrays
 	void settSet();
 
+	void earnResource();
+
 private:
 	//the mesh of the hexTile
 	UPROPERTY(EditAnywhere, Category = "Hex-Tile")
