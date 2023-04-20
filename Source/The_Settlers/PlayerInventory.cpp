@@ -25,7 +25,7 @@ bool PlayerInventory::buyRoad(bool free) {
 		canBuyRoadbool = false;
 		return true;
 	}
-	else if (AGameManager::roadBuildingLock) {
+	else if (AGameManager::roadBuildingLock && AGameManager::freeRoadsCount < 2) {
 		++roads;
 		++AGameManager::freeRoadsCount;
 		return true;
