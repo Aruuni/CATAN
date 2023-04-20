@@ -5,6 +5,7 @@
 #include "Thief.h"
 #include <Kismet/GameplayStatics.h>
 
+//constructor
 AGameManager::AGameManager() {
 	CurrentPlayer = EPlayer::PLAYER1;
 	gameGlobal = this;
@@ -13,9 +14,14 @@ AGameManager::AGameManager() {
 		invs.Add(new PlayerInventory((EPlayer)(i + 1), resources/5));
 	}
 }
+
 // Called when the game starts or when spawned
 void AGameManager::BeginPlay() {
 	StartTurn();
+}
+
+bool AGameManager::END_GAME() {
+
 }
 
 #pragma region Turn Mechanics 
@@ -168,7 +174,7 @@ void AGameManager::ShuffleTArray(TArray<AActor*>& MyArray) {
 
 #pragma endregion
 
-#pragma region cards 
+#pragma region Cards 
 
 void AGameManager::yearOPlenty() {
 	getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5)));
@@ -200,6 +206,7 @@ bool AGameManager::knight(EPlayer player) {
 	if (getPlayer(player)->useCard(ECards::KNIGHT)) {
 		getPlayer(CurrentPlayer)->addKnight();
 		thiefLock = true;
+		stealAll();
 		largestArmy();
 		return true;
 	}

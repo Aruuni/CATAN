@@ -140,6 +140,7 @@ public:
 	void ShuffleTArray(TArray<AActor*>& MyArray);
 	bool upgradeRandomSettlements(EPlayer player);
 
+	bool END_GAME();
 
 	
 private:
