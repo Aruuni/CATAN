@@ -21,6 +21,7 @@ void AGameManager::BeginPlay() {
 }
 
 bool AGameManager::END_GAME() {
+	return false;
 
 }
 
