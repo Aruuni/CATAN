@@ -20,45 +20,43 @@ void AGameManager::BeginPlay() {
 	StartTurn();
 }
 
+//function returns true is the game win condition is met (10 victory points)
+//this function is ran on tick
 bool AGameManager::END_GAME() {
-	return getPlayer(CurrentPlayer)->getVP() <10;
+	return getPlayer(CurrentPlayer)->getVP() > 9;
 }
 
 #pragma region Turn Mechanics 
 
+//this function is called when a new turn begins, or when the turn ends
 void AGameManager::StartTurn() {
+	//dice roll is made up of two dice of six sides. The dice roll is used to determine the resources gained by the players
 	int dice1 = rand() % 6 + 1;
 	int dice2 = rand() % 6 + 1;
-	
+	//the dice is rolled only after the 8th turn
 	if (globalTurn > 8 ) {
+		// this returns true if the dice roll is 7, and so it automatically steals, and engages the thief lock
 		if (AHexTileSpawner::hexManager->DiceRolled(dice1 + dice2)) {
 			stealAll();
 			thiefLock = true;
 		}
+		// the dice is saved into the dice variable that will be displayed on the hud
 		dice = dice1 + dice2;
 	}
-	
+	// this started the bot action loop only if the current player is not the actual player
 	if (CurrentPlayer != EPlayer::PLAYER1) {
 		startBot();
-
 	}
+	// this sets the timer for the turn
 	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
 }
 
+//this function is called when the turn ends
 void AGameManager::EndTurn() {
-	//these get calculated at the end
-	if (globalTurn < 9) {
-		buyRandomSett(EPlayer::PLAYER1);
-		buyRandomRoad(EPlayer::PLAYER1);
-
-	}
-
-	if (thiefLock) {
-		stealAll();
-	}
+	// the longest road and largest army are calculated at the end of the turn as a fail safe, they are very light functions so overhead is minimal
 	largestArmy();
 	longestRoad();
-	//locks reset at the end of the turn
+	//locks reset at the end of the turn (these are for the player inventories, things such as can draw, and can build road etc.)
 	refreshAll();
 	//the player turn gets incremented
 	int32 CurrentPlayerInt = (int32)CurrentPlayer;
@@ -67,6 +65,7 @@ void AGameManager::EndTurn() {
 		CurrentPlayerInt = 1;
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
+	//this is the special case where the first 8 turs are played in a specific order
 	if (globalTurn<9) {
 		if (globalTurn == 1) { CurrentPlayer = EPlayer::PLAYER2; }
 		if (globalTurn == 2) { CurrentPlayer = EPlayer::PLAYER3; }
@@ -76,20 +75,24 @@ void AGameManager::EndTurn() {
 		if (globalTurn == 6) { CurrentPlayer = EPlayer::PLAYER2; }
 		if (globalTurn == 7) { CurrentPlayer = EPlayer::PLAYER1; }
 		if (globalTurn == 8) { CurrentPlayer = EPlayer::PLAYER1; }
-
+		// this is done to force the player to build the roads and settlements, as if it is not done in the first 8 turns, the player will not be able to build any more and get any resources which ruins the game
+		buyRandomSett(EPlayer::PLAYER1);
+		buyRandomRoad(EPlayer::PLAYER1);
 	}
+	// the global turn is incremented then the next turn is started
 	globalTurn++;
 	StartTurn();
 }
 
+// this is the skip button function, it is called when the skip button is pressed
 void AGameManager::SkipTurn() {
+	// this stop the current timer to make sure that the next player gets the full turn time
 	GetWorldTimerManager().ClearTimer(TurnTimerHandle);
+	// the turn is ended
 	EndTurn();
 }
 
-EPlayer AGameManager::getCurrentPlayer() {
-	return CurrentPlayer;
-}
+
 
 #pragma endregion
 
@@ -113,12 +116,13 @@ bool AGameManager::botAction() {
 	if (upgradeRandomSettlements(CurrentPlayer)) { return true; }
 	drawCard();
 	if (globalTurn > 8) {
-		if (useCard(CurrentPlayer, ECards::KNIGHT)) { knight(CurrentPlayer); AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
+		if (knight(CurrentPlayer)){ AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
 		if (useCard(CurrentPlayer, ECards::MONOPOLY)) { monopoly((EResource)(rand() % 5)); return true; }
-		if (useCard(CurrentPlayer, ECards::FREEROAD)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
-		if (useCard(CurrentPlayer, ECards::YEAROFPLENTY)) { yearOPlenty(); return true; }
-		if (useCard(CurrentPlayer, ECards::VICTORYPOINT)) { developmentCard(CurrentPlayer); return true; }
+		if (freeRoads(CurrentPlayer)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
+		if (yearOPlenty(CurrentPlayer)) { return true; }
+		if (developmentCard(CurrentPlayer)) { return true; }
 	}
+
 	return false;
 }
 
@@ -176,19 +180,24 @@ void AGameManager::ShuffleTArray(TArray<AActor*>& MyArray) {
 
 #pragma region Cards 
 
-void AGameManager::yearOPlenty() {
-	getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5)));
-	getPlayer(CurrentPlayer)->addResource((EResource)((rand() % 5)));
+bool AGameManager::yearOPlenty(EPlayer player) {
+	if (getPlayer(player)->useCard(ECards::YEAROFPLENTY)) {
+		getPlayer(player)->addResource((EResource)((rand() % 5)));
+		getPlayer(player)->addResource((EResource)((rand() % 5)));
+		return true;
+	}
+	return false;
 }
 
 //monopoly behaviour called by the widget, can also be called by the bots
-void AGameManager::monopoly(EResource resource) {
+bool AGameManager::monopoly(EResource resource) {
 	int32 total = 0;
 	for (PlayerInventory* inv : invs) {
 		total += inv->Resources[(int32)resource];
 		inv->Resources[(int32)resource] = 0;
 	}
 	getPlayer(CurrentPlayer)->Resources[(int32)resource] = total;
+	return true;
 }
 
 //turns on the roadbuilding lock, called by the widget, can also be called by the bots
@@ -234,8 +243,14 @@ void AGameManager::largestArmy() {
 			playerVP = inv->player;
 		}
 	}
-	if (playerVP != largestArmyPlayer) {
-		if (largestArmyPlayer != EPlayer::NONE) { ----getPlayer(largestArmyPlayer)->victoryPoints; }
+	if (largestArmyPlayer == EPlayer::NONE) {
+		if (largest > 2) {
+			largestArmyPlayer = playerVP;
+		}
+		return;
+	}
+	else if (largest > getPlayer(largestArmyPlayer)->getKnights()) {
+		----getPlayer(largestArmyPlayer)->victoryPoints; 
 		++++getPlayer(playerVP)->victoryPoints;
 		largestArmyPlayer = playerVP;
 	}
@@ -247,13 +262,19 @@ void AGameManager::longestRoad() {
 	EPlayer playerVP = EPlayer::NONE;
 	int largest = 0;
 	for (PlayerInventory* inv : invs) {
-		if (inv->roads > largest && inv->roads >= 6) {
-			largest = inv->roads;
+		if (inv->getRoads() > largest && inv->getRoads() >= 6) {
+			largest = inv->getRoads();
 			playerVP = inv->player;
 		}
 	}
-	if (playerVP != longestRoadPlayer) {
-		if (longestRoadPlayer != EPlayer::NONE) { ----getPlayer(longestRoadPlayer)->victoryPoints; }
+	if (longestRoadPlayer == EPlayer::NONE) {
+		if (largest > 2) {
+			longestRoadPlayer = playerVP;
+		}
+		return;
+	}
+	else if (largest > getPlayer(longestRoadPlayer)->getKnights()) {
+		----getPlayer(longestRoadPlayer)->victoryPoints; 
 		++++getPlayer(playerVP)->victoryPoints;
 		longestRoadPlayer = playerVP;
 	}
@@ -282,20 +303,27 @@ bool AGameManager::useCard(EPlayer player, ECards card) {
 
 #pragma region Inventory Management
 
+// gets the player inventory from the player enum
 PlayerInventory* AGameManager::getPlayer(EPlayer player) {
 	for (PlayerInventory* inv : invs) {
-		if (inv->player == player) { return inv; }
+		if (inv->player == player) { 
+			return inv; 
+		}
 	}
 	return nullptr;
 }
 
-//checks if there are enough resources to give and recieve and removes the resources from the player and gives them away
-//resource1 is the x4 and resource2 is the x1. this is called by the blueprint once settlement adjacency has been established
-//returns true/false if the trade was successful
+// checks if there are enough resources to give and receive and removes the resources from the player and gives them away
+// // this is called by the blueprint once settlement adjacency has been established
+// resource1 is the resource to be given to the ship (between 2 and 3) 
+// resource2 is the x1 that the player receives in the trade. 
+// returns true/false if the trade was successful
 bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource resource2, int32 ammount) {
+	//since this trade type generates a resource, it needs to be checked if the "bank" has enough resources to give away
 	if (gResources[(int32)resource2] < 18) {
-		if (getPlayer(player)->Resources[(int32)resource1] > ammount) {
-			//manually, i know, who cares
+		//checks if the player has enough resources to give away
+		if (getResource(player, resource2) > ammount) {
+			//
 			for (int32 i = 0; i < ammount; ++i) {
 				getPlayer(player)->removeResource(resource1);
 			}										   
@@ -307,17 +335,33 @@ bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource reso
 	return false;
 }
 
-// removes the locks on the inventories
-void AGameManager::refreshAll() { for (PlayerInventory* inv : invs) { inv->reset(); } }
+// debug 
+void AGameManager::addKnight() {
+	getPlayer(CurrentPlayer)->addVictoryPoint();
+}
 
-//steals half of the resources from all players, called by the thief
-void AGameManager::stealAll() { for (PlayerInventory* inv : invs) { inv->removeHalf(); } }
+// releases the locks on the 
+void AGameManager::refreshAll() { 
+	for (PlayerInventory* inv : invs) { 
+		inv->reset(); 
+	} 
+}
 
-//checks if there are enough resources to give and recieve and removes the resources from the player and gives them away
-//player2 is the initiator of the trade, player1 is the reciever
-//resource 2 is the resource the initiator wants and resource 1 is the resource the reciever gets
+//s teals half of the resources from all players, called by the thief
+void AGameManager::stealAll() { 
+	for (PlayerInventory* inv : invs) { 
+		inv->removeHalf(); 
+	} 
+}
+
+// checks if there are enough resources to give and receive and removes the resources from the player and gives them away
+// player2 is the initiator of the trade, player1 is the receiver
+// resource 2 is the resource the initiator wants and resource 1 is the resource the receiver gets
+// returns true/false if the trade was successful/unsuccessful
 bool AGameManager::trade(EPlayer player1, EPlayer player2, EResource resource1, EResource resource2) {
+	// checks to see if the players have the resources, the global resource array is not checked because no new resource is being created, just moved from one player to another
 	if (getPlayer(player1)->getResource(resource2) > 0 && getPlayer(player2)->getResource(resource1) > 0) {
+		//adds and removes the resources traded for both players
 		getPlayer(player1)->addResource(resource1);
 		getPlayer(player1)->removeResource(resource2);
 		getPlayer(player2)->addResource(resource2);
@@ -328,61 +372,75 @@ bool AGameManager::trade(EPlayer player1, EPlayer player2, EResource resource1, 
 }
 
 //draws a card from the deck and adds it to the players hand, called by the widget "draw card" button
+// returns true if the card was drawn
 bool AGameManager::drawCard() {
 	return getPlayer(CurrentPlayer)->drawCard();
 }
 
-//adds a resource of the type to the players inventory
-//used for year of plenty widget
+// adds a resource of the type to the players inventory
+// used for year of plenty widget and auto play of the card
+// the player who played the card
+// the resource to add
+// returns true if the resource was added
 bool AGameManager::addResource(EPlayer player, EResource resource) {
 	return getPlayer(player)->addResource(resource);
 }
 
 #pragma endregion
 
+
+// these are getters for the to display different statistics on the HUD, they are called by functions bound to the HUD elements
 #pragma region HUD Getters
 
-FString AGameManager::getResourceHUD(EPlayer player, EResource resource) {
-	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::FromInt(getPlayer(player)->getResource(resource)));
-
-	return FString::FromInt(getPlayer(player)->getResource(resource));
+// gets the resource count for the HUD to display per player per resource type
+int32 AGameManager::getResource(EPlayer player, EResource resource) {
+	return getPlayer(player)->getResource(resource);
 }
 
+// used to display the number of knights a player has on the HUD
 int32 AGameManager::knightCount(EPlayer player) {
 	return getPlayer(player)->getKnights();
 }
 
+// this is used to show the remaining time of the current turn
 int32 AGameManager::getRemainingTime() {
 	return (int32)GetWorldTimerManager().GetTimerRemaining(TurnTimerHandle);
 
 }
 
+// gets the current dice roll for the HUD to display
 int32 AGameManager::getDice() {
 	return dice;
 }
 
+// gets the number of cards of a certain type for the HUD so the player can see how many cards they have per card type
 int32 AGameManager::getCardCount(EPlayer player, ECards card) {
 	return getPlayer(player)->getCardCount(card);
 }
 
+// gets the player with the largest army to display it on the HUD
 EPlayer AGameManager::getLargestArmyPlayer() {
 	return largestArmyPlayer;
 }
 
+// gets the player with the longest road to display it on the HUD
 EPlayer AGameManager::getLongestRoadPlayer() {
 	return longestRoadPlayer;
 }
 
-int32 AGameManager::getPlayerTurn() {
-	return (int32)getCurrentPlayer();
-}
-
+// this is to get the turn number for the HUD for the player to see what turn it is
 int32 AGameManager::getTurnNumber() {
 	return globalTurn;
 }
 
+// this is a getter for the victory points of a player, they are called in 4 different getText functions in the HUD blueprint
 int32 AGameManager::getVictoryPoints(EPlayer player) {
 	return getPlayer(player)->getVP();
+}
+
+// this is a function used by the HUD to get the current player in the event graph of blueprints
+EPlayer AGameManager::getCurrentPlayer() {
+	return CurrentPlayer;
 }
 
 #pragma endregion 

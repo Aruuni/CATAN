@@ -17,7 +17,7 @@ bool ARoad::RoadBuyer(EPlayer player) {
 		}
 		return false;
 	}
-	else if (roadAdjacency(player) || settlementAdjacency(player)) {
+	else if (roadAdjacency(player) || settlementAdjacency(player) ) {
 		if (AGameManager::gameGlobal->getPlayer(player)->buyRoad(false)) {
 			GetWorld()->SpawnActor<ABuilding>(roads[(int32)player - 1], GetActorLocation(), GetActorRotation());
 			bought = true;
@@ -53,3 +53,5 @@ bool ARoad::settlementAdjacency(EPlayer player) {
 	return false;
 }
 
+// make it happen 
+// for all settlement adjacenty that isnt mine

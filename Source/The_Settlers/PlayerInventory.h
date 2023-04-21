@@ -40,6 +40,8 @@ public:
 	int32 getKnights();
 	int32 getCardCount(ECards cardC);
 	int32 getVP();
+	int32 getRoads();
+
 	bool drawCard();
 	bool useCard(ECards card);
 	void addKnight();

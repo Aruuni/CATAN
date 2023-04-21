@@ -96,6 +96,10 @@ int32 PlayerInventory::getVP() {
 	return victoryPoints;
 }
 
+int32 PlayerInventory::getRoads() {
+	return roads;
+}
+
 bool PlayerInventory::drawCard() {
 	if (AGameManager::Gdeck.Num() == 0) { return false; }
 	if (canDrawCardbool && (Resources[(int32)EResource::ORE] >= 1 && Resources[(int32)EResource::WHEAT] >= 1 && Resources[(int32)EResource::WOOL] >= 1)) {
