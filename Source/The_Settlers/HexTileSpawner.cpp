@@ -5,8 +5,7 @@
 #include <Kismet/GameplayStatics.h>
 
 AHexTileSpawner::AHexTileSpawner() {}
-// REFACTOR LATER LOW PRIORITY
-// Called when the game starts or when spawned
+
 void AHexTileSpawner::BeginPlay() {
 	this->hexManager = this;
 	gridArray.SetNumZeroed(19);

@@ -1,5 +1,4 @@
 #include "GameManager.h"
-#include "PlayerInventory.h"
 #include "HexTileSpawner.h"
 #include "TimerManager.h"
 #include "Thief.h"
@@ -55,7 +54,6 @@ void AGameManager::EndTurn() {
 	//the settlement and road is automatically placed if the player fails to in order to prevent a soft lock where the player is unable to advance
 	if (globalTurn < 9) {
 		// this is done to force the player to build the roads and settlements, as if it is not done in the first 8 turns, the player will not be able to build any more and get any resources which ruins the game
-
 		buyRandomSett(EPlayer::PLAYER1);
 		buyRandomRoad(EPlayer::PLAYER1);
 	}
@@ -144,7 +142,9 @@ void AGameManager::endBot() {
 // it attempts to do all the actions one by one, if a function has already been done, it will not do it again as its locks will prevent it and attempt to do the next action
 // returns true if it does an action, false if it does not
 bool AGameManager::botAction() {
-	if (dice == 7) { AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
+	if (dice == 7) { 
+		AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); 
+	}
 	if (buyRandomSett(CurrentPlayer)) {
 		return true; 
 	}
