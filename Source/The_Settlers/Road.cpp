@@ -61,6 +61,8 @@ bool ARoad::roadAdjacency(EPlayer player) {
 	return false;
 }
 // checks if there is a settlement of the same player within 470 units of the road owned by the player, this is only used in the first 8 turns as if a settlement is close enough to the road to be placed the it must mean that there is also a road close enough to the settlement to be placed
+// player - the player who is attempting to buy the road
+// returns true if there is a settlement of the same player within 470 units of the road owned by the player, false otherwise
 bool ARoad::settlementAdjacency(EPlayer player) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
@@ -75,12 +77,16 @@ bool ARoad::settlementAdjacency(EPlayer player) {
 	return false;
 }
 
+// checks if there is an enemy settlement within 470 units of the road owned by the player, this is done to prevent roads from being placed adjacent to enemy settlements
+// player - the player who is attempting to buy the road
+// returns true if there is an enemy settlement within 470 units of the road owned by the player, false otherwise
 bool ARoad::enemySettlementAdjacency(EPlayer player) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	for (AActor* Actor : foundActors) {
 		if (FVector::Dist(Actor->GetActorLocation(), GetActorLocation()) <= 470.0f) {
 			ASettlement* sett = Cast<ASettlement>(Actor);
+			// none has to be ignored as it is not an enemy settlement but it will trigger a false positive if not ignored
 			if (sett->playerOwner == EPlayer::NONE) {
 				continue; 
 			}

@@ -21,10 +21,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ROAD")
 	TArray<TSubclassOf<ABuilding>> roads;
 	
-
 	//called by the blueprint or the bots to buy the road
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool RoadBuyer(EPlayer player);
+
 private:
 	// used to check road adjacency in order to determine if the road can be bought
 	bool roadAdjacency(EPlayer player);

@@ -52,13 +52,17 @@ void AGameManager::EndTurn() {
 	// the longest road and largest army are calculated at the end of the turn as a fail safe, they are very light functions so overhead is minimal
 	largestArmy();
 	longestRoad();
-	//locks reset at the end of the turn (these are for the player inventories, things such as can draw, and can build road etc.)
-
-	//the player turn gets incremented
+	//the settlement and road is automatically placed if the player fails to in order to prevent a soft lock where the player is unable to advance
 	if (globalTurn < 9) {
+		// this is done to force the player to build the roads and settlements, as if it is not done in the first 8 turns, the player will not be able to build any more and get any resources which ruins the game
+
 		buyRandomSett(EPlayer::PLAYER1);
 		buyRandomRoad(EPlayer::PLAYER1);
 	}
+	//locks reset at the end of the turn (these are for the player inventories, things such as can draw, and can build road etc.), but before the player is incremented as then it would not properly release the locks and will be carried over to the next round
+	refreshAll();
+
+	//the player turn gets incremented
 	int32 CurrentPlayerInt = (int32)CurrentPlayer;
 	CurrentPlayerInt++;
 	if (CurrentPlayerInt > (int32)EPlayer::PLAYER4) {
@@ -66,12 +70,8 @@ void AGameManager::EndTurn() {
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
 
-
 	//this is the special case where the first 8 turns are played in a specific order
 	if (globalTurn<9) {
-
-
-
 		if (globalTurn == 1) { 
 			CurrentPlayer = EPlayer::PLAYER2; 
 		}
@@ -96,12 +96,8 @@ void AGameManager::EndTurn() {
 		if (globalTurn == 8) { 
 			CurrentPlayer = EPlayer::PLAYER1; 
 		}
-
-		// this is done to force the player to build the roads and settlements, as if it is not done in the first 8 turns, the player will not be able to build any more and get any resources which ruins the game
-
 	}
 
-	refreshAll();
 	// the global turn is incremented then the next turn is started
 	globalTurn++;
 	StartTurn();
@@ -149,26 +145,43 @@ void AGameManager::endBot() {
 // returns true if it does an action, false if it does not
 bool AGameManager::botAction() {
 	if (dice == 7) { AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
-	if (buyRandomSett(CurrentPlayer)) { return true; }
-	if (buyRandomRoad(CurrentPlayer)) { return true; }
+	if (buyRandomSett(CurrentPlayer)) {
+		return true; 
+	}
+	if (buyRandomRoad(CurrentPlayer)) { 
+		return true; 
+	}
 
 	// it will attempt to buy a development card if it has not already done so
 	drawCard();
 
 	// moves the thief to a random tile if the dice roll is 7
-	if (knight(CurrentPlayer)){ AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
+	if (knight(CurrentPlayer)){ 
+		AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); 
+		return true; }
 	// calls the monopoly function on a random resource
-	if (monopoly(CurrentPlayer, (EResource)(rand() % 5))) { return true; }
+	if (monopoly(CurrentPlayer, (EResource)(rand() % 5))) { 
+		return true; 
+	}
 	// calls the road building function, then buys two random roads
-	if (freeRoads(CurrentPlayer)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
+	if (freeRoads(CurrentPlayer)) { 
+		buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); 
+		return true; 
+	}
 	// calls the year of plenty function
-	if (yearOPlenty(CurrentPlayer)) { return true; }
+	if (yearOPlenty(CurrentPlayer)) { 
+		return true; 
+	}
 	// calls the development card function
-	if (developmentCard(CurrentPlayer)) { return true; }
+	if (developmentCard(CurrentPlayer)) { 
+		return true; 
+	}
 	
 	//upgrading settlements is the least important
-	if (upgradeRandomSettlements(CurrentPlayer)) { return true; }
-	
+	if (upgradeRandomSettlements(CurrentPlayer)) { 
+		return true; 
+	}
+
 	return false;
 }
 
