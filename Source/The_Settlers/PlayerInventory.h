@@ -6,8 +6,9 @@
 class THE_SETTLERS_API PlayerInventory{
 public:
 	PlayerInventory(EPlayer player, int32 res);
+	//enum of the player whews inventory this is
 	EPlayer player;
-	// pool respirces
+	// pool resources
 	TArray<int32> Resources;
 
 	//this player
@@ -45,7 +46,7 @@ public:
 	bool drawCard();
 	bool useCard(ECards card);
 	void addKnight();
-	//inv management 
+
 	void removeHalf();
 	void addVictoryPoint();
 	bool addResource(EResource resource);

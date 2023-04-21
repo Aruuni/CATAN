@@ -18,7 +18,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlements")
 	TArray<ASettlement*> settArray;
 
-	//the hextile number
+	//the hexTile number
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlements")
 	int32 number;
 
@@ -26,7 +26,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thief")
 	bool hasThief = false;
 
-	//the hextile type, compatible with the resource enum
+	//the hexTile type, compatible with the resource Enum
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hex-Tile")
 	EHexTile tileType;
 
@@ -34,9 +34,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool checkMySettlementAdjacency(EPlayer player); 
 
-	//the setter for the adjacent selttlement arrays
+	//the setter for the adjacent settlement arrays
 	void settSet();
 
+	// the earning of resources
 	void earnResource();
 
 private:

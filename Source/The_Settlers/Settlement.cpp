@@ -8,9 +8,6 @@
 
 ASettlement::ASettlement() {}
 
-void  ASettlement::BeginPlay() {
-    Super::BeginPlay();
-}
 
 bool ASettlement::SettlementBuyer(EPlayer player) {
     if (locked || bought) { return false; }

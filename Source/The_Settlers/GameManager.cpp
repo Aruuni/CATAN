@@ -11,19 +11,15 @@ AGameManager::AGameManager() {
 	gameGlobal = this;
 	Gdeck = deckMaker(14, 6, 2, 2, 1);
 	for (int8 i = 0; i < 4; ++i) {
-		invs.Add(new PlayerInventory((EPlayer)(i + 1), resources/5));
+		// adds a new player inventory to the array of player inventories
+		invs.Add(new PlayerInventory((EPlayer)(i + 1), 0));
 	}
 }
 
-// Called when the game starts or when spawned
+// Called when the level loads and calls start turn to begin the turn loop
 void AGameManager::BeginPlay() {
+	CurrentPlayer = EPlayer::PLAYER1;
 	StartTurn();
-}
-
-//function returns true is the game win condition is met (10 victory points)
-//this function is ran on tick
-bool AGameManager::END_GAME() {
-	return getPlayer(CurrentPlayer)->getVP() > 9;
 }
 
 #pragma region Turn Mechanics 
@@ -40,7 +36,7 @@ void AGameManager::StartTurn() {
 			stealAll();
 			thiefLock = true;
 		}
-		// the dice is saved into the dice variable that will be displayed on the hud
+		// the dice is saved into the dice variable that will be displayed on the HUD
 		dice = dice1 + dice2;
 	}
 	// this started the bot action loop only if the current player is not the actual player
@@ -65,7 +61,7 @@ void AGameManager::EndTurn() {
 		CurrentPlayerInt = 1;
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
-	//this is the special case where the first 8 turs are played in a specific order
+	//this is the special case where the first 8 turns are played in a specific order
 	if (globalTurn<9) {
 		if (globalTurn == 1) { CurrentPlayer = EPlayer::PLAYER2; }
 		if (globalTurn == 2) { CurrentPlayer = EPlayer::PLAYER3; }
@@ -92,45 +88,76 @@ void AGameManager::SkipTurn() {
 	EndTurn();
 }
 
-
+//function returns true is the game win condition is met (10 victory points)
+//this function is ran on tick
+// returns true if the win condition is met, false if it is not
+bool AGameManager::END_GAME() {
+	return getPlayer(CurrentPlayer)->getVP() > 9;
+}
 
 #pragma endregion
 
+// actions done by the bot, it is called when the bot starts its turn, it is done to make the bot actions look more natural, as instant bot actions would look very unnatural to the human player
 #pragma region Bot Actions
 
+// starts the bot action loop, it is called when the bot starts its turn this is done to make the bot actions look more natural, as instant bot actions would look very unnatural to the player
 void AGameManager::startBot() {
+	//sets a random timer between 1 and botSpeed (an integer) seconds
 	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, ((rand() % botSpeed) + 1), false);
 }
 
+// function called when the startBot() timer ends , it calls the botAction() function as long as it can then skips the turn
 void AGameManager::endBot() {
+	// as long as a bot action is done, the bot action loop is restarted
 	if (botAction()) { startBot(); }
+	// if bot action returns false, it means that no action / other action could be done, so the bot turn is ended by calling the skip turn function
 	else {
 		SkipTurn();
 	}
 }
 
+// this is the bot action function, it tries to do all the actions in the order they are written, if it cannot do any of them, or when it does one, it returns true, and the bot action loop is restarted
+// it prioritizes building over other actions as earning resources is the most important thing in the game
+// it attempts to do all the actions one by one, if a function has already been done, it will not do it again as its locks will prevent it and attempt to do the next action
+// returns true if it does an action, false if it does not
 bool AGameManager::botAction() {
 	if (dice == 7) { AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); }
 	if (buyRandomSett(CurrentPlayer)) { return true; }
 	if (buyRandomRoad(CurrentPlayer)) { return true; }
-	if (upgradeRandomSettlements(CurrentPlayer)) { return true; }
-	drawCard();
-	if (globalTurn > 8) {
-		if (knight(CurrentPlayer)){ AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
-		if (useCard(CurrentPlayer, ECards::MONOPOLY)) { monopoly((EResource)(rand() % 5)); return true; }
-		if (freeRoads(CurrentPlayer)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
-		if (yearOPlenty(CurrentPlayer)) { return true; }
-		if (developmentCard(CurrentPlayer)) { return true; }
-	}
 
+	// it will attempt to buy a development card if it has not already done so
+	drawCard();
+
+	// moves the thief to a random tile if the dice roll is 7
+	if (knight(CurrentPlayer)){ AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); return true; }
+	// calls the monopoly function on a random resource
+	if (monopoly(CurrentPlayer, (EResource)(rand() % 5))) { return true; }
+	// calls the road building function, then buys two random roads
+	if (freeRoads(CurrentPlayer)) { buyRandomRoad(CurrentPlayer); buyRandomRoad(CurrentPlayer); return true; }
+	// calls the year of plenty function
+	if (yearOPlenty(CurrentPlayer)) { return true; }
+	// calls the development card function
+	if (developmentCard(CurrentPlayer)) { return true; }
+	
+	//upgrading settlements is the least important
+	if (upgradeRandomSettlements(CurrentPlayer)) { return true; }
+	
 	return false;
 }
 
+// buys a random road  by looping through all the roads and calling the roadBuyer function on them
+// player - the player that is buying the road
+// returns true if a road is bought, false if not
 bool AGameManager::buyRandomRoad(EPlayer player) {
 	TArray<AActor*> foundActors;
+	//gets all the roads in the world
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARoad::StaticClass(), foundActors);
+	//shuffles the array so that the roads are not bought in the same order every time
+	ShuffleTArray(foundActors);
 	for (AActor* Actor : foundActors) {
+		//casts the actor to a road
 		ARoad* road = Cast<ARoad>(Actor);
+		// attempts to buy the road, if the road is not purchasable under the rules of the game, it will return false with no side effects so calling it on all roads is safe
 		if (road->RoadBuyer(player)) {
 			return true;
 		}
@@ -138,13 +165,38 @@ bool AGameManager::buyRandomRoad(EPlayer player) {
 	}
 	return false;
 }
-//randomly buying buildings
-bool  AGameManager::upgradeRandomSettlements(EPlayer player) {
+
+// buys a random settlement  by looping through all the settlement and calling the SettlementBuyer function on them
+// player - the player that is buying the settlement
+// returns true if a settlement is bought, false if not
+bool AGameManager::buyRandomSett(EPlayer player) {
 	TArray<AActor*> foundActors;
+	//gets all the settlements in the world
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
 	ShuffleTArray(foundActors);
 	for (AActor* Actor : foundActors) {
 		ASettlement* sett = Cast<ASettlement>(Actor);
+		// attempts to buy the settlement, if the settlement is not purchasable under the rules of the game, it will return false with no side effects so calling it on all settlements is safe
+		if (sett->SettlementBuyer(player)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// upgrades a random settlement by looping through all the settlement and calling the Upgrade function on them
+// player - the player that is buying the settlement
+// returns true if a settlement is upgraded to a city, false if not
+bool  AGameManager::upgradeRandomSettlements(EPlayer player) {
+	TArray<AActor*> foundActors;
+	//gets all the settlements in the world
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
+	//shuffles the array so that the settlements are not bought in the same order every time
+	ShuffleTArray(foundActors);
+	for (AActor* Actor : foundActors) {
+		//casts the actor to a settlement
+		ASettlement* sett = Cast<ASettlement>(Actor);
+		// attempts to upgrade the settlement, if the settlement is not purchasable under the rules of the game, it will return false with no side effects so calling it on all settlements is safe
 		if (sett->playerOwner == player && !sett->upgraded) {
 			if (sett->Upgrade(player)) {
 				return true;
@@ -154,23 +206,12 @@ bool  AGameManager::upgradeRandomSettlements(EPlayer player) {
 	return false;
 }
 
-bool AGameManager::buyRandomSett(EPlayer player) {
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
-	ShuffleTArray(foundActors);
-	for (AActor* Actor : foundActors) {
-		ASettlement* sett = Cast<ASettlement>(Actor);
-		if (sett->SettlementBuyer(player)) {
-			return true;
-		}
-
-	}
-	return false;
-}
-//needed a way to shuffle arays to make the bot random actions more random
+// needed a way to shuffle arrays to make the bot random actions more random, it is a linear function that swaps each element with another random element
+// MyArray - a reference to the array to be shuffled 
+// does not return the array, as it is a reference to the array, so it is changed in place
 void AGameManager::ShuffleTArray(TArray<AActor*>& MyArray) {
-	for (int32 i = 0; i < MyArray.Num(); i++)
-	{
+	for (int32 i = 0; i < MyArray.Num(); i++) {
+		// randomly swap the element with another one 
 		int32 j = FMath::RandRange(0, MyArray.Num() - 1);
 		MyArray.Swap(i, j);
 	}
@@ -178,10 +219,15 @@ void AGameManager::ShuffleTArray(TArray<AActor*>& MyArray) {
 
 #pragma endregion
 
+// functions related to the card functionality 
 #pragma region Cards 
 
+// the year of plenty behavior called by the bots, the player will add resources that they choose from the widget so this is not used by players
+// player - player using the card
+// returns true if the card was played successfully
 bool AGameManager::yearOPlenty(EPlayer player) {
 	if (getPlayer(player)->useCard(ECards::YEAROFPLENTY)) {
+		// adds two random resources to the player
 		getPlayer(player)->addResource((EResource)((rand() % 5)));
 		getPlayer(player)->addResource((EResource)((rand() % 5)));
 		return true;
@@ -189,18 +235,28 @@ bool AGameManager::yearOPlenty(EPlayer player) {
 	return false;
 }
 
-//monopoly behaviour called by the widget, can also be called by the bots
-bool AGameManager::monopoly(EResource resource) {
-	int32 total = 0;
-	for (PlayerInventory* inv : invs) {
-		total += inv->Resources[(int32)resource];
-		inv->Resources[(int32)resource] = 0;
+// monopoly behavior called by the widget, can also be called by the bots
+// takes all the resources of a type from all players and gives them to the current player
+// it does this by setting all the other players resources to 0 and then setting thee current players resources to the total of the specific gResource
+// player - player using the card
+// resource - the type of resource to monopolize
+// returns true if the card was played successfully
+bool AGameManager::monopoly(EPlayer player, EResource resource) {
+	if (useCard(player, ECards::MONOPOLY)) {
+		//zeros every player as the player that played the card will get assigned the gResource regardless
+		for (PlayerInventory* inv : invs) {
+			inv->Resources[(int32)resource] = 0;
+		}
+		//assigns the player the gResource
+		getPlayer(player)->Resources[(int32)resource] = gResources[(int32)resource];
+		return true;
 	}
-	getPlayer(CurrentPlayer)->Resources[(int32)resource] = total;
-	return true;
+	return false;
 }
 
-//turns on the roadbuilding lock, called by the widget, can also be called by the bots
+// turns on the road building lock, called by the widget, can also be called by the bots
+// player - using the card
+// returns true if the card was played successfully
 bool AGameManager::freeRoads(EPlayer player) {
 	if (getPlayer(player)->useCard(ECards::FREEROAD)) {
 		roadBuildingLock = true;
@@ -209,8 +265,10 @@ bool AGameManager::freeRoads(EPlayer player) {
 	return false;
 }
 
-//called by the widget, can also be called by the bots
-//simply adds a knight to the player if the card is playable and played, also released the thief lock
+// called by the widget, can also be called by the bots
+// simply adds a knight to the player if the card is playable and played, also released the thief lock and steals all the resources 
+// player - that plays the card
+// returns true if the card was played successfully
 bool AGameManager::knight(EPlayer player) {
 	if (getPlayer(player)->useCard(ECards::KNIGHT)) {
 		getPlayer(CurrentPlayer)->addKnight();
@@ -222,9 +280,12 @@ bool AGameManager::knight(EPlayer player) {
 	return false;
 }
 
-//called by the widget, can also be called by the bots
-//simply just adds a victory point to the player if the card is playable and played
+// called by the widget, can also be called by the bots
+// simply just adds a victory point to the player if the card is playable and played
+// player - that plays the card
+// returns true if the card was played successfully
 bool AGameManager::developmentCard(EPlayer player) {
+	//calls the use card function to validate if the card can be played
 	if (getPlayer(player)->useCard(ECards::VICTORYPOINT)) {
 		getPlayer(player)->addVictoryPoint();
 		return true;
@@ -232,56 +293,72 @@ bool AGameManager::developmentCard(EPlayer player) {
 	return false;
 }
 
-
-//takes the player with the most knights and compares with the one that already has the largest army, if they are different it adds a victory point to the new player and removes it from the old one
+// takes the player with the most knights and compares with the one that already has the largest army, if they are different it adds a victory point to the new player and removes it from the old one
 void AGameManager::largestArmy() {
 	EPlayer playerVP = EPlayer::NONE;
 	int largest = 0;
+	// loops through the players and finds the one with the most knights
+	//a check for the NONE player because the player NONE does not exist
 	for (PlayerInventory* inv : invs) {
 		if (inv->getKnights() > largest && inv->getKnights() >= 3) {
 			largest = inv->getKnights();
 			playerVP = inv->player;
 		}
 	}
+	//if there is no player with the most knights and the largest knights so far are more than 2, the largest army player is set to the player with the most knights
 	if (largestArmyPlayer == EPlayer::NONE) {
 		if (largest > 2) {
 			largestArmyPlayer = playerVP;
 		}
 		return;
 	}
+	//if the largest army detected so far is more then the player with the most knights, the largest army player is set to the player with the most knights
 	else if (largest > getPlayer(largestArmyPlayer)->getKnights()) {
+		//2 victory points are added and removed from the players accordingly
 		----getPlayer(largestArmyPlayer)->victoryPoints; 
 		++++getPlayer(playerVP)->victoryPoints;
+		//finally the new largest army player is set
 		largestArmyPlayer = playerVP;
 	}
-	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Player with largest army:    %d"), (int32)playerVP));
 }
 
-//calculates the player with the most roads
+// calculates the player with the most roads
+// this function is played whenever a road is built 
 void AGameManager::longestRoad() {
 	EPlayer playerVP = EPlayer::NONE;
 	int largest = 0;
+	//loops through the players and finds the one with the most roads
 	for (PlayerInventory* inv : invs) {
 		if (inv->getRoads() > largest && inv->getRoads() >= 6) {
 			largest = inv->getRoads();
 			playerVP = inv->player;
 		}
 	}
+	//if there is no player with the most roads and the longest roads so far are more than 6, the longest road player is set to the player with the most roads so far
+	//a check for the NONE player because the player NONE does not exist
 	if (longestRoadPlayer == EPlayer::NONE) {
-		if (largest > 2) {
+		if (largest > 6) {
 			longestRoadPlayer = playerVP;
 		}
 		return;
 	}
 	else if (largest > getPlayer(longestRoadPlayer)->getKnights()) {
+		// two victory points are added and removed from the players accordingly
 		----getPlayer(longestRoadPlayer)->victoryPoints; 
 		++++getPlayer(playerVP)->victoryPoints;
+		//finally the new longest road player is set
 		longestRoadPlayer = playerVP;
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, TurnDuration, FColor::Purple, FString::Printf(TEXT("Player with largest army:    %d"), (int32)playerVP));
 }
 
-//makes the deck "bucket" based on how many cards of each type are required
+// makes the deck "bucket" based on how many cards of each type are required
+// knight - number of knight cards
+// vp - number of victory point cards
+// monopoly - number of monopoly cards
+// yop - number of year of plenty cards
+// roads - number of free road cards
+// returns a TArray of ECards
 TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop, int roads) {
 	TArray<ECards> deck;
 	for (int8 i = 0; i < knight + vp + monopoly + yop + roads+1; ++i) {
@@ -294,22 +371,27 @@ TArray<ECards> AGameManager::deckMaker(int knight, int vp, int monopoly, int yop
 	return deck;
 }
 
-//uses the card for the player, returns true if the card was used sucessfully
+// uses the card for the player. this function is used to validate whether or not a specific player has a card can play it, 
+// the player that is using the card
+// the card that is being used
+// returns true if the card was used successfully
 bool AGameManager::useCard(EPlayer player, ECards card) {
 	return getPlayer(player)->useCard(card);
 }
 
 #pragma endregion
 
+// functions to manage the player inventories
 #pragma region Inventory Management
 
-// gets the player inventory from the player enum
+// gets the player inventory from the player Enum
 PlayerInventory* AGameManager::getPlayer(EPlayer player) {
 	for (PlayerInventory* inv : invs) {
 		if (inv->player == player) { 
 			return inv; 
 		}
 	}
+	// will never actually happen, but otherwise the compiler complains that not all paths return a value
 	return nullptr;
 }
 
@@ -323,11 +405,10 @@ bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource reso
 	if (gResources[(int32)resource2] < 18) {
 		//checks if the player has enough resources to give away
 		if (getResource(player, resource2) > ammount) {
-			//
+			//removes as many resources as the player needs to give away, generated by the ship tile
 			for (int32 i = 0; i < ammount; ++i) {
 				getPlayer(player)->removeResource(resource1);
 			}										   
-			
 			getPlayer(player)->addResource(resource2);
 			return true;
 		}
@@ -335,16 +416,9 @@ bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource reso
 	return false;
 }
 
-// debug 
-void AGameManager::addKnight() {
-	getPlayer(CurrentPlayer)->addVictoryPoint();
-}
-
-// releases the locks on the 
+// releases the locks on the current player
 void AGameManager::refreshAll() { 
-	for (PlayerInventory* inv : invs) { 
-		inv->reset(); 
-	} 
+	getPlayer(CurrentPlayer)->reset();
 }
 
 //s teals half of the resources from all players, called by the thief
@@ -388,11 +462,11 @@ bool AGameManager::addResource(EPlayer player, EResource resource) {
 
 #pragma endregion
 
-
 // these are getters for the to display different statistics on the HUD, they are called by functions bound to the HUD elements
 #pragma region HUD Getters
 
 // gets the resource count for the HUD to display per player per resource type
+// also used to check if the player has enough resources for other actions such as trading
 int32 AGameManager::getResource(EPlayer player, EResource resource) {
 	return getPlayer(player)->getResource(resource);
 }
