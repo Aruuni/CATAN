@@ -140,6 +140,7 @@ public:
 	void ShuffleTArray(TArray<AActor*>& MyArray);
 	bool upgradeRandomSettlements(EPlayer player);
 
+	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool END_GAME();
 
 	
