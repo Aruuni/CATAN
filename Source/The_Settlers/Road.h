@@ -22,6 +22,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool RoadBuyer(EPlayer player);
 private:
+	
 	bool roadAdjacency(EPlayer player);
 	bool settlementAdjacency(EPlayer player);
 };

@@ -33,7 +33,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settlement-Level-2")
 	TArray<TSubclassOf<ABuilding>> Level2;
 
-	
 	// used to increment the resource of the owner of the settlement
 	void earnResource(EResource type);
 
@@ -45,26 +44,28 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool Upgrade(EPlayer player);
 
-	
 	// steals a resource from the owner of the settlement
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool stealResource(EPlayer stealer);
 
+	// used in some blueprint for validation purposes (displaying a correct error message)
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	EPlayer getOwner();
+
+	// used in some blueprint for validation purposes (displaying a correct error message)
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	bool boughtChecker();
+
+private:
 	// checks thief adjacency in order to determine if the settlement can be stolen from
 	bool thiefAdjacency();
 
 	// called when the settlement is bout, as no adjacent settlements can be bought
 	void settlementLock();
 
-	// used in some blueprint for validation purposes (displaying a correct error message)
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	EPlayer getOwner();
-	// used in some blueprint for validation purposes (displaying a correct error message)
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	bool boughtChecker();
-private:
 	// the building that is currently on the settlement
 	ABuilding* building;
+
 	// used to determine if the settlement is adjacent to a road when buying it
 	bool roadAdjacency(EPlayer player);
 
