@@ -53,28 +53,55 @@ void AGameManager::EndTurn() {
 	largestArmy();
 	longestRoad();
 	//locks reset at the end of the turn (these are for the player inventories, things such as can draw, and can build road etc.)
-	refreshAll();
+
 	//the player turn gets incremented
+	if (globalTurn < 9) {
+		buyRandomSett(EPlayer::PLAYER1);
+		buyRandomRoad(EPlayer::PLAYER1);
+	}
 	int32 CurrentPlayerInt = (int32)CurrentPlayer;
 	CurrentPlayerInt++;
 	if (CurrentPlayerInt > (int32)EPlayer::PLAYER4) {
 		CurrentPlayerInt = 1;
 	}
 	CurrentPlayer = (EPlayer)CurrentPlayerInt;
+
+
 	//this is the special case where the first 8 turns are played in a specific order
 	if (globalTurn<9) {
-		if (globalTurn == 1) { CurrentPlayer = EPlayer::PLAYER2; }
-		if (globalTurn == 2) { CurrentPlayer = EPlayer::PLAYER3; }
-		if (globalTurn == 3) { CurrentPlayer = EPlayer::PLAYER4; }
-		if (globalTurn == 4) { CurrentPlayer = EPlayer::PLAYER4; }
-		if (globalTurn == 5) { CurrentPlayer = EPlayer::PLAYER3; }
-		if (globalTurn == 6) { CurrentPlayer = EPlayer::PLAYER2; }
-		if (globalTurn == 7) { CurrentPlayer = EPlayer::PLAYER1; }
-		if (globalTurn == 8) { CurrentPlayer = EPlayer::PLAYER1; }
+
+
+
+		if (globalTurn == 1) { 
+			CurrentPlayer = EPlayer::PLAYER2; 
+		}
+		if (globalTurn == 2) { 
+			CurrentPlayer = EPlayer::PLAYER3; 
+		}
+		if (globalTurn == 3) { 
+			CurrentPlayer = EPlayer::PLAYER4; 
+		}
+		if (globalTurn == 4) { 
+			CurrentPlayer = EPlayer::PLAYER4; 
+		}
+		if (globalTurn == 5) { 
+			CurrentPlayer = EPlayer::PLAYER3; 
+		}
+		if (globalTurn == 6) { 
+			CurrentPlayer = EPlayer::PLAYER2; 
+		}
+		if (globalTurn == 7) { 
+			CurrentPlayer = EPlayer::PLAYER1;	
+		}
+		if (globalTurn == 8) { 
+			CurrentPlayer = EPlayer::PLAYER1; 
+		}
+
 		// this is done to force the player to build the roads and settlements, as if it is not done in the first 8 turns, the player will not be able to build any more and get any resources which ruins the game
-		buyRandomSett(EPlayer::PLAYER1);
-		buyRandomRoad(EPlayer::PLAYER1);
+
 	}
+
+	refreshAll();
 	// the global turn is incremented then the next turn is started
 	globalTurn++;
 	StartTurn();
