@@ -21,6 +21,7 @@ void AGameManager::BeginPlay() {
 	StartTurn();
 }
 
+// method responsible for the turn loop
 #pragma region Turn Mechanics 
 
 //this function is called when a new turn begins, or when the turn ends
@@ -144,7 +145,10 @@ void AGameManager::endBot() {
 bool AGameManager::botAction() {
 	if (dice == 7) { 
 		AThief::thief->moveThief(AHexTileSpawner::hexManager->GetRandomTile()); 
+		// steals a random resource from a random player
+		stealRandomResource(CurrentPlayer);
 	}
+
 	if (buyRandomSett(CurrentPlayer)) {
 		return true; 
 	}
@@ -241,6 +245,26 @@ bool  AGameManager::upgradeRandomSettlements(EPlayer player) {
 			if (sett->Upgrade(player)) {
 				return true;
 			}
+		}
+	}
+	return false;
+}
+
+// steals a random resource from a random player settlement
+// player - the player that is stealing the resource
+// returns true if a resource is stolen, false if not
+bool AGameManager::stealRandomResource(EPlayer player) {
+	TArray<AActor*> foundActors;
+	//gets all the settlements in the world
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);
+	//shuffles the array so that the settlements are not bought in the same order every time
+	ShuffleTArray(foundActors);
+	for (AActor* Actor : foundActors) {
+		//casts the actor to a settlement
+		ASettlement* sett = Cast<ASettlement>(Actor);
+		// attempts to steal a resource from all settlements, this is safe as the function will return false if the settlement is not steal-able
+		if (sett->stealResource(player)) {
+			return true;
 		}
 	}
 	return false;
@@ -355,8 +379,10 @@ void AGameManager::largestArmy() {
 	//if the largest army detected so far is more then the player with the most knights, the largest army player is set to the player with the most knights
 	else if (largest > getPlayer(largestArmyPlayer)->getKnights()) {
 		//2 victory points are added and removed from the players accordingly
-		----getPlayer(largestArmyPlayer)->victoryPoints; 
-		++++getPlayer(playerVP)->victoryPoints;
+		getPlayer(largestArmyPlayer)->removeVictoryPoint(); 
+		getPlayer(largestArmyPlayer)->removeVictoryPoint(); 
+		getPlayer(playerVP)->addVictoryPoint();
+		getPlayer(playerVP)->addVictoryPoint();
 		//finally the new largest army player is set
 		largestArmyPlayer = playerVP;
 	}
@@ -382,10 +408,12 @@ void AGameManager::longestRoad() {
 		}
 		return;
 	}
-	else if (largest > getPlayer(longestRoadPlayer)->getKnights()) {
+	else if (largest > getPlayer(longestRoadPlayer)->getRoads()) {
 		// two victory points are added and removed from the players accordingly
-		----getPlayer(longestRoadPlayer)->victoryPoints; 
-		++++getPlayer(playerVP)->victoryPoints;
+		getPlayer(longestRoadPlayer)->removeVictoryPoint();
+		getPlayer(longestRoadPlayer)->removeVictoryPoint();
+		getPlayer(playerVP)->addVictoryPoint();
+		getPlayer(playerVP)->addVictoryPoint();
 		//finally the new longest road player is set
 		longestRoadPlayer = playerVP;
 	}

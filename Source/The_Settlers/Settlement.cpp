@@ -77,6 +77,7 @@ bool ASettlement::Upgrade(EPlayer player) {
     }
     return false;
 }
+
 // this function earns a resource for the player who owns the settlement of the ETileType cast to a EResource
 void ASettlement::earnResource(EResource type) {
     // if it has no owner then it returns null 
@@ -90,31 +91,6 @@ void ASettlement::earnResource(EResource type) {
         AGameManager::gameGlobal->getPlayer(playerOwner)->addResource(type); 
     }
     // the functions add don't 100% add a resource, it might fail if resources already at max
-}
-
-// this function is used to click on a settlement and steal a random resource from the player who owns it
-bool ASettlement::stealResource(EPlayer stealer) {
-    // checks if the steal lock is active AND the settlement is adjacent to the robber AND the settlement is owned by a player
-    // all three of these conditions must be true for the steal function to work
-    if (AGameManager::stealLock && thiefAdjacency() && (playerOwner != stealer && playerOwner != EPlayer::NONE)) {
-        // a resource to add is randomly selected from the player who owns the settlement
-        // it calls the removeOneRand function which returns a random resource and removes it from the player through the global pointer to the game manager
-        EResource toAdd = AGameManager::gameGlobal->getPlayer(playerOwner)->removeOneRand();
-        // if the resource is none then the function returns false, as the player has no resources to steal, allowing the stealer to try again
-        if (toAdd == EResource::NONE) { 
-            return false; 
-        }
-        // if the resource is added successfully then the steal lock is deactivated and the function returns true
-        if (AGameManager::gameGlobal->getPlayer(stealer)->addResource(toAdd)) {
-            // releases the 
-            AGameManager::stealLock = false;
-            return true;
-        }
-        //if the resource is not added successfully then the resource is added back to the player who owned the settlement to allow the stealer to try again
-        AGameManager::gameGlobal->getPlayer(playerOwner)->addResource(toAdd);
-        return false;
-    }
-    return false;
 }
 
 // this function locks all adjacent settlements to the settlement that is being bought to prevent them from being bought 
@@ -156,6 +132,31 @@ bool ASettlement::roadAdjacency(EPlayer player) {
 // returns the player who owns the settlement represented by their enum
 EPlayer ASettlement::getOwner() {
     return playerOwner;
+}
+
+// this function is used to click on a settlement and steal a random resource from the player who owns it
+bool ASettlement::stealResource(EPlayer stealer) {
+    // checks if the steal lock is active AND the settlement is adjacent to the robber AND the settlement is owned by a player
+    // all three of these conditions must be true for the steal function to work
+    if (AGameManager::stealLock && thiefAdjacency() && (playerOwner != stealer && playerOwner != EPlayer::NONE)) {
+        // a resource to add is randomly selected from the player who owns the settlement
+        // it calls the removeOneRand function which returns a random resource and removes it from the player through the global pointer to the game manager
+        EResource toAdd = AGameManager::gameGlobal->getPlayer(playerOwner)->removeOneRand();
+        // if the resource is none then the function returns false, as the player has no resources to steal, allowing the stealer to try again
+        if (toAdd == EResource::NONE) {
+            return false;
+        }
+        // if the resource is added successfully then the steal lock is deactivated and the function returns true
+        if (AGameManager::gameGlobal->getPlayer(stealer)->addResource(toAdd)) {
+            // releases the 
+            AGameManager::stealLock = false;
+            return true;
+        }
+        //if the resource is not added successfully then the resource is added back to the player who owned the settlement to allow the stealer to try again
+        AGameManager::gameGlobal->getPlayer(playerOwner)->addResource(toAdd);
+        return false;
+    }
+    return false;
 }
 
 // this function checks if the settlement is adjacent to the thief

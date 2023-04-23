@@ -18,15 +18,13 @@ public:
 	
 	//constructor for the game manager
 	AGameManager();
-	inline static int32 resources = 0;
 	//Global resources and the deck, static as they need to be accessed from anywhere and they are located only once in the translation units
-	inline static TArray<int32> gResources = { resources, resources, resources, resources, resources };
+	inline static TArray<int32> gResources = { 0, 0, 0, 0, 0 };
 
 	// the deck of cards that is used to draw cards from
 	inline static TArray<ECards> Gdeck;
 
-	// getter for the player inventory based on the player enum
-	PlayerInventory* getPlayer(EPlayer player);
+
 	// the deck maker function that creates the deck based on the number of cards of each type
 	TArray<ECards> deckMaker(int knight, int vp, int monopoly, int yop, int roads);
 
@@ -38,12 +36,7 @@ public:
 	inline static int freeRoadsCount = 0;
 	inline static EPlayer CurrentPlayer = EPlayer::PLAYER1;
 
-	//getter for blueprint used for turn validation among other things
-	UFUNCTION(BlueprintCallable, Category = "Function")
-	EPlayer getCurrentPlayer();
 
-	// maximum speed for a bot action in seconds, the higher the slower the bots act
-	int32 botSpeed = 1;
 
 	// Turn duration in seconds
 	float TurnDuration = 60.f;
@@ -56,6 +49,9 @@ public:
 
 	//the array of player inventories that are used to store the players resources and cards
 	TArray<PlayerInventory*> invs;
+
+	// getter for the player inventory based on the player enum
+	PlayerInventory* getPlayer(EPlayer player);
 
 	//Skips the turn of the current player
 	UFUNCTION(BlueprintCallable, Category = "Function")
@@ -120,6 +116,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	int32 getVictoryPoints(EPlayer player);
 
+	//getter for blueprint used for turn validation among other things
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	EPlayer getCurrentPlayer();
+
 	//HUD function to get the resources of a player
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	int32 getResource(EPlayer player, EResource resource);
@@ -146,9 +146,12 @@ public:
 	bool END_GAME();
 
 private:
+	// maximum speed for a bot action in seconds, the higher the slower the bots act
+	int32 botSpeed = 1;
 
 	//the dice value total
 	int32 dice;
+
 	// players with the largest army and longest road
 	EPlayer largestArmyPlayer = EPlayer::NONE;
 	EPlayer longestRoadPlayer = EPlayer::NONE;
@@ -161,6 +164,7 @@ private:
 	bool buyRandomRoad(EPlayer player);
 	bool buyRandomSett(EPlayer player);
 	bool upgradeRandomSettlements(EPlayer player);
+	bool stealRandomResource(EPlayer player);
 
 	//the bot action loop
 	void startBot();

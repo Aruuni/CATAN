@@ -26,6 +26,8 @@ void AHexTile::settSet() {
 }
 
 // only used for trade tiles to validate that a settlement of the plater attempting to trade is adjacent, works on the same principle as settSet
+// player - the player who is attempting to trade
+// returns true if the settlement is adjacent to the trade tile, false otherwise
 bool AHexTile::checkMySettlementAdjacency(EPlayer player) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettlement::StaticClass(), foundActors);

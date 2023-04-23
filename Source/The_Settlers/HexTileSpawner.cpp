@@ -35,17 +35,30 @@ void AHexTileSpawner::BeginPlay() {
 	}
 }
 
+
+// called from GameManager to roll the dice every round, it adds resourced to the players
+// dice is a random number between 2 and 12
+// returns true if the dice is 7, false otherwise
 bool AHexTileSpawner::DiceRolled(int32 dice) {	
-	if (dice == 7) { return true; }
+	if (dice == 7) { 
+		// returns true as resources cant be earned
+		return true; 
+	}
 	for (int8 hex = 0; hex < gridArray.Num(); ++hex) {
 		if (gridArray[hex]->number == dice) {
-			if (gridArray[hex]->hasThief) { continue; }
+			// ignores the hex if it has a thief on it
+			if (gridArray[hex]->hasThief) { 
+				continue; 
+			}
+			// earns the resource if the hex is not blocked
 			gridArray[hex]->earnResource();
 		}
 	}
 	return false;
 }
 
+// gets a random pointer to a hex tile
+// returns the pointer to the hex tile
 AHexTile* AHexTileSpawner::GetRandomTile() {
 	return gridArray[rand() % gridArray.Num()];
 }

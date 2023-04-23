@@ -8,18 +8,18 @@
 #include "HexTile.h"
 #include "HexTileSpawner.generated.h"
 
-
-
-
 UCLASS()
 class THE_SETTLERS_API AHexTileSpawner : public AActor {
 	GENERATED_BODY()
 
 public:
 	AHexTileSpawner();
+	// the BeginPlay() method that starts then the level is loaded
 	virtual void BeginPlay() override;	
 	//static
 	inline static AHexTileSpawner* hexManager;
+
+	// the array of hex tiles that are used to store the hex tiles
 	TArray<AHexTile*> gridArray;
 
 	//array of all coordinates for the Catan grid
@@ -59,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Hex-Grid")
 	TSubclassOf<AHexTile> DESERT;
 
-	//number grid
+	//the number tiles that are spawned on the hex tiles, these are blueprints that inherit from the number tile class which is an empty class that only holds the static mesh of the number tile
 	UPROPERTY(EditAnywhere, Category = "Number-Grid")
 	TSubclassOf<ANumberTile> TWO;
 	UPROPERTY(EditAnywhere, Category = "Number-Grid")
