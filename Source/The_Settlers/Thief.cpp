@@ -23,6 +23,6 @@ void AThief::moveThief(AHexTile* newTile) {
 	// turns on the steal lock, so that the player can steal a resource from another player's settlement
 	AGameManager::stealLock = true;
 	// moves the thief to the new tile in the world
-	this->SetActorLocation(newTile->GetActorLocation());
+	SetActorLocation(newTile->GetActorLocation());
 }
 

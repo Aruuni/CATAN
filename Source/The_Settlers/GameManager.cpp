@@ -26,29 +26,21 @@ void AGameManager::BeginPlay() {
 
 //this function is called when a new turn begins, or when the turn ends
 void AGameManager::StartTurn() {
-	//dice roll is made up of two dice of six sides. The dice roll is used to determine the resources gained by the players
-	int dice1 = rand() % 6 + 1;
-	int dice2 = rand() % 6 + 1;
-	//the dice is rolled only after the 8th turn
-	if (globalTurn > 8 ) {
-		// this returns true if the dice roll is 7, and so it automatically steals, and engages the thief lock
-		if (AHexTileSpawner::hexManager->DiceRolled(dice1 + dice2)) {
-			stealAll();
-			thiefLock = true;
-		}
-		// the dice is saved into the dice variable that will be displayed on the HUD
-		dice = dice1 + dice2;
-	}
+	rollLock = true;
+	
 	// this started the bot action loop only if the current player is not the actual player
 	if (CurrentPlayer != EPlayer::PLAYER1) {
 		startBot();
 	}
 	// this sets the timer for the turn
-	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TurnDuration, false);
+	GetWorldTimerManager().SetTimer(TurnTimerHandle, this, &AGameManager::EndTurn, TURN_DURATION, false);
 }
 
 //this function is called when the turn ends
 void AGameManager::EndTurn() {
+	if (rollLock) {
+		DiceRollButton();
+	}
 	// the longest road and largest army are calculated at the end of the turn as a fail safe, they are very light functions so overhead is minimal
 	largestArmy();
 	longestRoad();
@@ -96,7 +88,8 @@ void AGameManager::EndTurn() {
 			CurrentPlayer = EPlayer::PLAYER1; 
 		}
 	}
-
+	// dice is reset on the HUD back to 0
+	dice = 0;
 	// the global turn is incremented then the next turn is started
 	globalTurn++;
 	StartTurn();
@@ -117,6 +110,27 @@ bool AGameManager::END_GAME() {
 	return getPlayer(CurrentPlayer)->getVP() > 9;
 }
 
+//
+int32  AGameManager::DiceRollButton() {
+	if (rollLock) {
+		//dice roll is made up of two dice of six sides. The dice roll is used to determine the resources gained by the players
+		int dice1 = rand() % 6 + 1;
+		int dice2 = rand() % 6 + 1;
+		//the dice is rolled only after the 8th turn
+		if (globalTurn > 8) {
+			// this returns true if the dice roll is 7, and so it automatically steals, and engages the thief lock
+			if (AHexTileSpawner::hexManager->DiceRolled(dice1 + dice2)) {
+				stealAll();
+				thiefLock = true;
+			}
+			// the dice is saved into the dice variable that will be displayed on the HUD
+			dice = dice1 + dice2;
+		}
+		rollLock = false;
+	}
+	return dice;
+}
+
 #pragma endregion
 
 // actions done by the bot, it is called when the bot starts its turn, it is done to make the bot actions look more natural, as instant bot actions would look very unnatural to the human player
@@ -125,6 +139,7 @@ bool AGameManager::END_GAME() {
 // starts the bot action loop, it is called when the bot starts its turn this is done to make the bot actions look more natural, as instant bot actions would look very unnatural to the player
 void AGameManager::startBot() {
 	//sets a random timer between 1 and botSpeed (an integer) seconds
+	DiceRollButton();
 	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, ((rand() % botSpeed) + 1), false);
 }
 
@@ -403,7 +418,7 @@ void AGameManager::longestRoad() {
 	//if there is no player with the most roads and the longest roads so far are more than 6, the longest road player is set to the player with the most roads so far
 	//a check for the NONE player because the player NONE does not exist
 	if (longestRoadPlayer == EPlayer::NONE) {
-		if (largest > 6) {
+		if (largest > 4) {
 			longestRoadPlayer = playerVP;
 		}
 		return;

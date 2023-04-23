@@ -35,14 +35,14 @@ public:
 	// a counter needs to be kept to know how many roads the player has built with the road building card
 	inline static int freeRoadsCount = 0;
 	inline static EPlayer CurrentPlayer = EPlayer::PLAYER1;
-
+	
+	bool rollLock = false;
 
 
 	// Turn duration in seconds
-	float TurnDuration = 60.f;
+	float TURN_DURATION = 60.f;
 
-	//called by the thief
-	void stealAll();
+
 
 	//the turn number to be displayed on the HUD
 	int32 globalTurn = 1;
@@ -52,6 +52,9 @@ public:
 
 	// getter for the player inventory based on the player enum
 	PlayerInventory* getPlayer(EPlayer player);
+	
+	//called by the thief
+	void stealAll();
 
 	//Skips the turn of the current player
 	UFUNCTION(BlueprintCallable, Category = "Function")
@@ -144,6 +147,9 @@ public:
 	// called on tick to end the game
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	bool END_GAME();
+
+	UFUNCTION(BlueprintCallable, Category = "Function")
+	int32 DiceRollButton();
 
 private:
 	// maximum speed for a bot action in seconds, the higher the slower the bots act
