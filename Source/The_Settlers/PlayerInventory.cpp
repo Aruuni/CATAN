@@ -178,11 +178,14 @@ bool PlayerInventory::drawCard() {
 
 		//selects a random index from the deck, and adds the card to the player's hand
 		int32 randno = rand() % AGameManager::Gdeck.Num();
+		
 		//adds the card to the player's hand, and removes it from the deck
 		hand.Add((AGameManager::Gdeck)[randno]);
-		AGameManager::Gdeck.RemoveAt(randno);
+
 		//sets the unplayable card to the card that was drawn
 		unplayable = (AGameManager::Gdeck)[randno];
+		AGameManager::Gdeck.RemoveAt(randno);
+		
 		// engages the lock to prevent the player from drawing another card
 		canDrawCardbool = false;
 		return true;

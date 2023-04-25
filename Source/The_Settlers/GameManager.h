@@ -42,8 +42,6 @@ public:
 	// Turn duration in seconds
 	float TURN_DURATION = 60.f;
 
-
-
 	//the turn number to be displayed on the HUD
 	int32 globalTurn = 1;
 
@@ -153,7 +151,7 @@ public:
 
 private:
 	// maximum speed for a bot action in seconds, the higher the slower the bots act
-	int32 botSpeed = 1;
+	int32 BOT_SPEED = 1;
 
 	//the dice value total
 	int32 dice;

@@ -140,7 +140,7 @@ int32  AGameManager::DiceRollButton() {
 void AGameManager::startBot() {
 	//sets a random timer between 1 and botSpeed (an integer) seconds
 	DiceRollButton();
-	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, ((rand() % botSpeed) + 1), false);
+	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, 0.001, false);
 }
 
 // function called when the startBot() timer ends , it calls the botAction() function as long as it can then skips the turn
