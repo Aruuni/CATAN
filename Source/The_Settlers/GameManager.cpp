@@ -1,4 +1,3 @@
-#include "GameManager.h"
 #include "HexTileSpawner.h"
 #include "TimerManager.h"
 #include "Thief.h"
@@ -51,7 +50,7 @@ void AGameManager::EndTurn() {
 		buyRandomRoad(EPlayer::PLAYER1);
 	}
 	//locks reset at the end of the turn (these are for the player inventories, things such as can draw, and can build road etc.), but before the player is incremented as then it would not properly release the locks and will be carried over to the next round
-	refreshAll();
+	getPlayer(CurrentPlayer)->reset();
 
 	//the player turn gets incremented
 	int32 CurrentPlayerInt = (int32)CurrentPlayer;
@@ -140,13 +139,14 @@ int32  AGameManager::DiceRollButton() {
 void AGameManager::startBot() {
 	//sets a random timer between 1 and botSpeed (an integer) seconds
 	DiceRollButton();
-	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, 0.001, false);
+	GetWorldTimerManager().SetTimer(botTimeHandle, this, &AGameManager::endBot, (rand()%BOT_SPEED)+1, false);
 }
 
 // function called when the startBot() timer ends , it calls the botAction() function as long as it can then skips the turn
 void AGameManager::endBot() {
 	// as long as a bot action is done, the bot action loop is restarted
-	if (botAction()) { startBot(); }
+	// a random trade is attempted
+	if (botAction()) { trade((EPlayer)((rand() % 3) + 1), CurrentPlayer, (EResource)(rand() % 5), (EResource)(rand() % 5)); startBot(); }
 	// if bot action returns false, it means that no action / other action could be done, so the bot turn is ended by calling the skip turn function
 	else {
 		SkipTurn();
@@ -497,11 +497,6 @@ bool AGameManager::shipTrade(EPlayer player, EResource resource1, EResource reso
 		}
 	}
 	return false;
-}
-
-// releases the locks on the current player
-void AGameManager::refreshAll() { 
-	getPlayer(CurrentPlayer)->reset();
 }
 
 //s teals half of the resources from all players, called by the thief

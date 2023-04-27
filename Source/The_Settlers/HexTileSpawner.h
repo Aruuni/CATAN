@@ -86,7 +86,7 @@ public:
 
 	// used by the bots to get a random tile to move the thief to
 	AHexTile* GetRandomTile();
-
+private:
 	// the bucket generator for hex tiles
 	TArray<TSubclassOf<AHexTile>> hexBucket(int32 ammount);
 };

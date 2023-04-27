@@ -70,9 +70,23 @@ bool AHexTileSpawner::DiceRolled(int32 dice) {
 	return false;
 }
 
-// gets a random pointer to a hex tile
+// gets a random pointer to a hex tile adjacent to PLAYER1
 // returns the pointer to the hex tile
 AHexTile* AHexTileSpawner::GetRandomTile() {
+
+	for (int32 i = 0; i < gridArray.Num(); i++) {
+		// randomly swap the element with another one 
+		int32 j = FMath::RandRange(0, gridArray.Num() - 1);
+		gridArray.Swap(i, j);
+	}
+	for (AHexTile* hex : gridArray) {
+		for (ASettlement* sett : hex->settArray) {
+			if (sett->playerOwner == EPlayer::PLAYER1) {
+				return hex;
+			}
+		}
+
+	}
 	return gridArray[rand() % gridArray.Num()];
 }
 

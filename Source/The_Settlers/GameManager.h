@@ -18,6 +18,7 @@ public:
 	
 	//constructor for the game manager
 	AGameManager();
+
 	//Global resources and the deck, static as they need to be accessed from anywhere and they are located only once in the translation units
 	inline static TArray<int32> gResources = { 0, 0, 0, 0, 0 };
 
@@ -149,9 +150,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Function")
 	int32 DiceRollButton();
 
+	//this is a function that is used to shuffle the arrays of settlements and roads.
+	void ShuffleTArray(TArray<AActor*>& MyArray);
+
 private:
 	// maximum speed for a bot action in seconds, the higher the slower the bots act
-	int32 BOT_SPEED = 1;
+	int32 BOT_SPEED = 4;
 
 	//the dice value total
 	int32 dice;
@@ -179,9 +183,6 @@ private:
 	void StartTurn();
 	void EndTurn();
 
-	//this function is called to release the locks on the player inventories such as card drawn, card played, etc
-	void refreshAll();
-
 	//called by the timer to end the turn
 	void largestArmy();
 	void longestRoad();
@@ -189,6 +190,5 @@ private:
 	//the year of plenty card behavior of the bots
 	bool yearOPlenty(EPlayer player);
 
-	//this is a function that is used to shuffle the arrays of settlements and roads.
-	void ShuffleTArray(TArray<AActor*>& MyArray);
+
 };
