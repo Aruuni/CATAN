@@ -2,7 +2,7 @@
 
 Developed with Unreal Engine 5 (c++)
 
-<link rel="stylesheet" href="Main.Style">
+<link rel="stylesheet" href="Min.Style">
 <nav class="myNav">
 <ul>
   <li><a href="https://github.com/Aruuni/CATAN/edit/main/README.md">home</a></li>
