@@ -3,7 +3,7 @@
 Developed with Unreal Engine 5 (c++)
 <ul>
   <li><a href="https://github.com/Aruuni/CATAN/edit/main/README.md">home</a></li>
-  <li><a href="https://www.freecodecamp.org/news/how-to-build-a-navigation-bar/#:~:text=The%20easiest%20way%20to%20create,are%20horizontally%20arranged%20and%20styled."></a></li>
+  <li><a href="https://www.freecodecamp.org/news/how-to-build-a-navigation-bar/#:~:text=The%20easiest%20way%20to%20create,are%20horizontally%20arranged%20and%20styled.">MegaBased</a></li>
   
 </ul>
 
