@@ -1,7 +1,7 @@
 # The Settlers of Catan 
 *Developed by me with help from Tom on documentation and Emri on GUI assets*
 
-The Settlers of Catan, a classic board game loved by many, comes to life in an immersive digital experience with 'The Settlers of Catan' game created in Unreal Engine. This virtual adaptation faithfully captures the essence of the beloved strategy game, allowing players to explore the rich, ever-changing landscapes of Catan in stunning detail. Whether you're a seasoned settler or a newcomer, the Unreal Engine's realistic graphics and dynamic environments enhance the gameplay, making every move and trade feel more engaging. The inclusion of AI-controlled bots ensures a challenging and competitive experience, making it an ideal option for solo play or a multiplayer adventure. Immerse yourself in the world of Catan like never before, as you strategize, trade, and build your way to victory in this digital rendition of the timeless classic.
+The Settlers of Catan, a classic board game loved by many, comes to life in an immersive digital experience with 'The Settlers of Catan' game created in Unreal Engine 5. This virtual adaptation faithfully captures the essence of the beloved strategy game, allowing players to explore the rich, ever-changing landscapes of Catan in stunning detail. Whether you're a seasoned settler or a newcomer, the Unreal Engine's realistic graphics and dynamic environments enhance the gameplay, making every move and trade feel more engaging. The inclusion of AI-controlled bots ensures a challenging and competitive experience, making it an ideal option for solo play or a multiplayer adventure. Immerse yourself in the world of Catan like never before, as you strategize, trade, and build your way to victory in this digital rendition of the timeless classic.
 
 
 ![image](https://github.com/Aruuni/CATAN/assets/20707335/79c9493b-5453-41d5-8155-0c8a400cbe21)
@@ -9,6 +9,9 @@ The Settlers of Catan, a classic board game loved by many, comes to life in an i
 ![image](https://user-images.githubusercontent.com/20707335/232779411-15c88bda-44be-45da-a9c2-29c078ca7220.png)
 
 ![image](https://github.com/Aruuni/CATAN/assets/20707335/5e26a29a-b475-4075-8ca2-65f61016f92f)
+
+![image](https://github.com/Aruuni/CATAN/assets/20707335/8d645dfb-aa09-4fdd-9e2b-0219522a8e2a)
+
 
 # Catan Rules Q&A
 
